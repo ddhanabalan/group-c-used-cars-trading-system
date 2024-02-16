@@ -12,7 +12,7 @@ password = "ptUJ75ehwYIYZ3cG"
 uri = f"mongodb+srv://{username}:{password}@cluster0.wtgjxax.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(uri)
 
-@app.route('/query/search', methods=['GET'])
+@app.route('/vehicles', methods=['GET'])
 def search():
     skip = int(request.args["page"])*30 if 'page' in request.args else 0
     
@@ -30,7 +30,7 @@ def search():
     result = client['MilesmartMain']['Car'].find(projection=project, skip=skip, limit=30)
     return list(result)
 
-@app.route('/query/vehicle/<int:id>', methods=['GET'])
+@app.route('/vehicle/<int:id>', methods=['GET'])
 def vehicle(id: int):
     filter = {
         '$match': {
@@ -57,22 +57,22 @@ def get_path(mkdir:bool = False)->tuple[str|None, int]:
     if not 'path' in request.args: return None, 1
 
     path = request.args['path']
-    if path.startswith('/'): return None, 2
+    if path.startswith('/'): return None, 1
 
     abs_path = os.path.abspath(os.path.join('Server/storage', path))
     dir = os.path.dirname(abs_path)
 
     if not os.path.exists(dir):
         if mkdir: os.mkdir(dir)
-        else: return None
+        else: return None, 2
     
-    return abs_path
+    return abs_path, 0
 
 @app.route('/storage/upload', methods=['POST'])
 def storage_upload():
     path, res = get_path(mkdir=True)
     if path is None: abort(400)
-    if 'file' not in request.args: abort(400 if res is 1 else 404)
+    if 'file' not in request.args: abort(400 if res == 1 else 404)
 
     file = request.files['file']
     file.save(path)
@@ -81,25 +81,26 @@ def storage_upload():
 @app.route('/storage/download', methods=['GET'])
 def storage_download():
     path, res = get_path()
-    if path is None: abort(400 if res is 1 else 404)
+    if path is None: abort(400 if res == 1 else 404)
 
+    print(path)
     return send_file(path, as_attachment=True)
 
 @app.route('/storage/remove', methods=['DELETE'])
 def storage_remove():
     path, res = get_path()
-    if path is None: abort(400 if res is 1 else 404)
+    if path is None: abort(400 if res == 1 else 404)
 
     os.remove(path)
     return {}, 200
 
-@app.route('/storage/<path:path>', methods=['GET'])
-def storage_download(path: str):
+@app.route('/file/<path:path>', methods=['GET'])
+def storage_view(path: str):
     abs_path = os.path.abspath(os.path.join('Server/storage', path))
     dir = os.path.dirname(abs_path)
     if not os.path.exists(dir): abort(404)
 
-    return send_file(path, as_attachment=False)
+    return send_file(abs_path, as_attachment=False)
 
 if __name__ == '__main__':
     app.run(debug=True)
