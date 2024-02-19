@@ -1,3 +1,5 @@
+#!.venv/bin/python3
+
 import os
 from flask import Flask, abort, request, send_file, url_for
 from flask_cors import CORS
@@ -12,22 +14,74 @@ password = "ptUJ75ehwYIYZ3cG"
 uri = f"mongodb+srv://{username}:{password}@cluster0.wtgjxax.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(uri)
 
+@app.route('/')
+def index():
+    return send_file('static/index.html')
+
 @app.route('/vehicles', methods=['GET'])
 def search():
     skip = int(request.args["page"])*30 if 'page' in request.args else 0
+
+    search_key = request.args['sk'] if 'sk' in request.args else ''
+
+    filter={
+        '$and': [
+            {
+                '$or': [
+                    { 'model': { '$regex': search_key } },
+                    { 'manufacturer': { '$regex': search_key } }
+                ]
+            }
+        ]
+    }
+
+    if 'price_min' in request.args:
+        filter['$and'].append({
+            'price': { '$gte': int(request.args['price_min']) }
+        })
+
+    if 'price_max' in request.args:
+        filter['$and'].append({
+            'price': { '$lte': int(request.args['price_max']) }
+        })
+
+    if 'year_min' in request.args:
+        filter['$and'].append({
+            'year': { '$gte': int(request.args['year_min']) }
+        })
+
+    if 'year_max' in request.args:
+        filter['$and'].append({
+            'year': { '$lte': int(request.args['year_max']) }
+        })
+
+    if 'odo_min' in request.args:
+        filter['$and'].append({
+            'odometer': { '$gte': int(request.args['odo_min']) }
+        })
+
+    if 'odo_max' in request.args:
+        filter['$and'].append({
+            'odometer': { '$lte': int(request.args['odo_max']) }
+        })
+
+    if 'fuel_types' in request.args:
+        filter['$and'].append({
+            'fuel': { '$in': request.args['fuel_types'].split(',') }
+        })
     
     project = {
         'manufacturer': 1, 
         'model': 1, 
         'price': 1, 
         'transmission': 1, 
-        'fuel_type': 1, 
+        'fuel': 1, 
         'odometer': 1, 
         'state': 1, 
         'img_urls': 1
     }
 
-    result = client['MilesmartMain']['Car'].find(projection=project, skip=skip, limit=30)
+    result = client['MilesmartMain']['Car'].find(filter=filter, projection=project, skip=skip, limit=30)
     return list(result)
 
 @app.route('/vehicle/<int:id>', methods=['GET'])
