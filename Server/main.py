@@ -1,6 +1,7 @@
 #!.venv/bin/python3
 
 import os
+from random import Random
 from flask import Flask, abort, request, send_file, url_for
 from flask_cors import CORS
 from pymongo import MongoClient
@@ -17,6 +18,11 @@ client = MongoClient(uri)
 @app.route('/')
 def index():
     return send_file('static/index.html')
+
+# @app.route('/app/<path:path>')
+# def fs(path: str):
+#     print(path)
+#     return send_file(f'static/{path}')
 
 @app.route('/vehicles', methods=['GET'])
 def search():
@@ -81,8 +87,20 @@ def search():
         'img_urls': 1
     }
 
-    result = client['MilesmartMain']['Car'].find(filter=filter, projection=project, skip=skip, limit=30)
-    return list(result)
+    images = list[str]()
+    for i in range(1, 6):
+        images.append(f'car{i}.jpg')
+    for i in range(1, 6):
+        images.append(f'interior{i}.jpg')
+
+    result = list(client['MilesmartMain']['Car'].find(filter=filter, projection=project, skip=skip, limit=30))
+    for vehicle in result:
+        image_urls = list[str]()
+        for i in range(Random().randint(3, 10)):
+            image_urls.append(f'{request.url_root}file/{images[Random().randint(0,9)]}')
+        vehicle['image_urls'] = image_urls
+    
+    return result
 
 @app.route('/vehicle/<int:id>', methods=['GET'])
 def vehicle(id: int):
@@ -103,8 +121,23 @@ def vehicle(id: int):
 
     unwind = { '$unwind': { 'path': '$owner' } }
     result = list(client['MilesmartMain']['Car'].aggregate([lookup, unwind, filter, { '$limit': 1 }]))
+
+    #Dummy Image injector
+    images = list[str]()
+    for i in range(1, 6):
+        images.append(f'car{i}.jpg')
+    for i in range(1, 6):
+        images.append(f'interior{i}.jpg')
+
+    if len(result) <= 0: abort(404)
+
+    vehicle = result[0]
+    image_urls = list[str]()
+    for i in range(Random().randint(3, 10)):
+        image_urls.append(f'{request.url_root}file/{images[Random().randint(0,4 if i < 2 else 9)]}')
+    vehicle['image_urls'] = image_urls
     
-    return result[0] if len(result) > 0 else abort(404)
+    return vehicle
 
 # Storage Functions
 def get_path(mkdir:bool = False)->tuple[str|None, int]:
