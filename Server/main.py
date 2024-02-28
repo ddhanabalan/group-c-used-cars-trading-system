@@ -97,7 +97,7 @@ def search():
     for vehicle in result:
         image_urls = list[str]()
         for i in range(Random().randint(3, 10)):
-            image_urls.append(f'{request.url_root}file/{images[Random().randint(0,9)]}')
+            image_urls.append(f'{request.url_root}file/{images[Random().randint(0,4 if i < 2 else 9)]}')
         vehicle['image_urls'] = image_urls
     
     return result
@@ -144,7 +144,7 @@ def get_path(mkdir:bool = False)->tuple[str|None, int]:
     if not 'path' in request.args: return None, 1
 
     path = request.args['path']
-    if path.startswith('/'): return None, 1
+    if path.startswith('/'): path = path[1:]
 
     abs_path = os.path.abspath(os.path.join('Server/storage', path))
     dir = os.path.dirname(abs_path)
