@@ -130,7 +130,7 @@ export default function Product() {
                   </div>
 
                   <div className="grow flex justify-center">
-                    <input placeholder="Search" className="bg-neutral-100 dark:bg-gray-800 rounded-md px-2 py-1 w-full duration-150 collapse sm:visible max-w-md placeholder:text-center text-center" style={{outline: "none"}}/>
+                    <input placeholder="Search" className="bg-neutral-100 dark:bg-gray-800 rounded-md px-2 py-1 w-full duration-150 max-w-md placeholder:text-center text-center" style={{outline: "none"}}/>
                   </div>
 
                   <div className="flex gap-1">
