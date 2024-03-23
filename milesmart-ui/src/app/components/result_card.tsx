@@ -1,8 +1,11 @@
+'use client'
+
 import Badge from "./badge"
 import Card from "./card"
 import Image from "next/image"
 import ShareIcon from "./icons/share_icon"
 import FavoriteIcon from "./icons/favorite_icon"
+import { useRouter } from "next/navigation"
 
 export default function ResultCard( { vehicle, className }: {
     vehicle: { 
@@ -19,9 +22,11 @@ export default function ResultCard( { vehicle, className }: {
     },
     className?: string
 }) {
+    const router = useRouter()
+
     return (
         <Card className={'w-64 min-h-72 overflow-clip '+className}>
-            <div className='flex flex-col flex-1'>
+            <div className='flex flex-col flex-1' onClick={() => { router.push(`/product?vid=${vehicle["_id"]}`) }}>
                 <div className='h-max bg-white'>
                 <Image alt="main_image" width={-1} height={-1} src={vehicle['image_urls'][0]} className="w-full h-48 overflow-clip object-cover hover:outline-2 hover:outline-black"/>
                 </div>
