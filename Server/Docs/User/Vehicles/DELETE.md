@@ -1,8 +1,8 @@
 # Delete The Details of a Vehicle
 - Endpoint: `/user/vehicles/<id>` `PATCH`
 - Authentication Required as Normal User
-- Path Parameters:
-    - `id: long` Vehicle ID **(Required)**
+## Path Parameters:
+- `id: long` Vehicle ID **(Required)**
 
 ## Response Schemas
 - Response Code: 200
