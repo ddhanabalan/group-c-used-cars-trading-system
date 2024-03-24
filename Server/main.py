@@ -84,7 +84,8 @@ def search():
         'fuel': 1, 
         'odometer': 1, 
         'state': 1, 
-        'img_urls': 1
+        'img_urls': 1,
+        'year': 1
     }
 
     images = list[str]()
