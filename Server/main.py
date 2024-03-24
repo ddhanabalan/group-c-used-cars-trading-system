@@ -103,7 +103,7 @@ def search():
     
     return result
 
-@app.route('/vehicle/<int:id>', methods=['GET'])
+@app.route('/vehicles/<int:id>', methods=['GET'])
 def vehicle(id: int):
     filter = {
         '$match': {
@@ -190,12 +190,12 @@ def storage_view(path: str):
 
     return send_file(abs_path, as_attachment=True)
 
-@app.route('/test', methods=["POST"])
+@app.route('/test', methods=["POST", "GET"])
 def tqx():
-    if 'path' not in request.form: abort(400)
-    if 'file' not in request.files: abort(400)
-    request.files['file'].save(os.path.join('Server/storage', request.form['path']))
-
+    # if 'path' not in request.form: abort(400)
+    # if 'file' not in request.files: abort(400)
+    # request.files['file'].save(os.path.join('Server/storage', request.form['path']))
+    print(request.headers.get("Content-Type"))
 
     return {}
 

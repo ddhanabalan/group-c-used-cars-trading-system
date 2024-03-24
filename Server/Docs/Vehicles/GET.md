@@ -1,8 +1,8 @@
 # Get The Details of a Vehicle
 - Endpoint: `/vehicles/<id>` `GET`
 - No Authentication Required
-- Path Parameters:
-    - `id: long` Vehicle ID **(Required)**
+## Path Parameters:
+- `id: long` Vehicle ID **(Required)**
 ## Response Schemas
 - Response code: 200 
     ```
