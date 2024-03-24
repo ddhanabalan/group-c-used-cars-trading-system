@@ -29,3 +29,15 @@ This article includes the details of all APIs that are planned to implement and 
 - `/user/wishlist` `GET` [List all Vehicles in Wishlist of Authenticated User](Docs/User/GET.Wishlist.md)
 - `/user/wishlist` `POST` [Add a Vehicle to Wishlist of Authenticated User](Docs/User/POST.Wishlist.md)
 - `/user/wishlist/<id>` `DELETE` [Remove a Vehicle from Wishlist of Authenticated User](Docs/User/DELETE.Wishlist.md)
+
+## File Storage Enpoints
+- `/storage` `POST` [Upload a File](Docs/POST.Storage.md)
+- `/storage/<id>` `GET` [Download a File](Docs/GET.Storage.md)
+- `/storage/<id>` `UPDATE` [Re-Uploading a File with Same Name](Docs/UPDATE.Storage.md)
+- `/storage/<id>` `DELETE` [Delete a File](Docs/DELETE.Storage.md)
+- `/files/<id>` `GET` [View The File](Docs/POST.Storage.md)
+- `/user/files` `GET` [List Current User Files Metadata](Docs/POST.Storage.md)
+- `/user/files/<id>` `GET` [View The File metadata](Docs/POST.Storage.md)
+
+## How to Authenticate
+
