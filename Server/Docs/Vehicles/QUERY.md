@@ -1,7 +1,7 @@
 # List Vehicles Globally based on filters
 - Endpoint: `/vehicles` `GET`
 - No Authentication Required
-## Body Parameters:
+## Query Parameters:
 - `sk: string` Search Key
 - `price_min: int` Price Filter Min Value
 - `price_max: int` Price Filter Max Value
@@ -55,5 +55,4 @@
             }
         ]
     }
-    
     ```
