@@ -15,9 +15,9 @@ password = "ptUJ75ehwYIYZ3cG"
 uri = f"mongodb+srv://{username}:{password}@cluster0.wtgjxax.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(uri)
 
-@app.route('/')
-def index():
-    return send_file('static/index.html')
+# @app.route('/')
+# def index():
+#     return send_file('static/index.html')
 
 # @app.route('/app/<path:path>')
 # def fs(path: str):
@@ -186,9 +186,18 @@ def storage_remove():
 def storage_view(path: str):
     abs_path = os.path.abspath(os.path.join('Server/storage', path))
     dir = os.path.dirname(abs_path)
-    if not os.path.exists(dir): abort(404)
+    if not os.path.exists(abs_path): abort(404)
 
-    return send_file(abs_path, as_attachment=False)
+    return send_file(abs_path, as_attachment=True)
+
+@app.route('/test', methods=["POST"])
+def tqx():
+    if 'path' not in request.form: abort(400)
+    if 'file' not in request.files: abort(400)
+    request.files['file'].save(os.path.join('Server/storage', request.form['path']))
+
+
+    return {}
 
 if __name__ == '__main__':
     app.run(debug=True)
