@@ -75,7 +75,7 @@ export default function Results() {
                 </div>
               </div>
 
-            <div className={"fixed transition-all flex flex-col z-20 md:pr-28 pr-0 w-full h-screen bg-black/30 "+(state_open?"":"hidden")} onClick={() => {
+            <div className={"fixed transition-all flex flex-col z-20 md:pr-28 pr-0 w-full h-screen bg-black/50 "+(state_open?"":"hidden")} onClick={() => {
               set_state_open(false);
             }}>
               <div className='bg-gray-800 flex flex-col shadow-lg mt-3 mx-3 rounded-md min-w-[480px] min-h-48 place-self-center' onClick={(e) => {e.stopPropagation()}}>
