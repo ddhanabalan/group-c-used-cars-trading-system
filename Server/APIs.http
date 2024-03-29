@@ -1,0 +1,7 @@
+GET http://ansif:pass@localhost:5000/login HTTP/1.1
+
+###
+GET http://localhost:5000/login?client_code=m63oZEL2 HTTP/1.1
+
+###
+GET http://clientweb1:password1@localhost:5000/client_code HTTP/1.1
