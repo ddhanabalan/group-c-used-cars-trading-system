@@ -1,10 +1,19 @@
 #!.venv/bin/python3
 
+import base64
+import datetime
 import os
 from random import Random
-from flask import Flask, abort, request, send_file, url_for
+from flask import Flask, abort, redirect, request, send_file, url_for
 from flask_cors import CORS
 from pymongo import MongoClient
+import requests
+
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+import googleapiclient.discovery
+
+from idgen import generate_id
 
 app = Flask(__name__)
 app.secret_key = "ABCDEFGH"
@@ -14,6 +23,10 @@ username = "admin"
 password = "ptUJ75ehwYIYZ3cG"
 uri = f"mongodb+srv://{username}:{password}@cluster0.wtgjxax.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(uri)
+
+CLIENT_SECRETS_FILE = "Server/client_secret.json"
+SCOPES = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile', 'openid']
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # @app.route('/')
 # def index():
@@ -196,6 +209,81 @@ def tqx():
     # if 'file' not in request.files: abort(400)
     # request.files['file'].save(os.path.join('Server/storage', request.form['path']))
     print(request.headers.get("Content-Type"))
+
+    return {}
+
+@app.route('/client_code', methods=['GET'])
+def client_code():
+    if request.authorization == None: abort(401)
+    if request.authorization.type != 'basic': abort(401)
+    if request.authorization.username != 'clientweb1': abort(401)
+    if request.authorization.password != 'password1': abort(401)
+
+    id = generate_id()
+    client['MilesmartMain']['ClientCodes'].insert_one({
+        'timestamp': datetime.datetime.utcnow(),
+        'code': id
+    })
+
+    return { 'client_code': id }
+
+@app.route('/login', methods=['GET'])
+def login():
+    if 'client_code' not in request.args: abort(400)
+    
+    client_code = request.args['client_code']
+    client_code_query = list(client['MilesmartMain']['ClientCodes'].find({
+        'code': client_code
+    }))
+
+    if len(client_code_query) == 0: abort(401)
+
+    token_query = list(client['MilesmartMain']['UserTokens'].find({
+        '_id': client_code
+    }))
+
+    if len(token_query) != 0: return {}
+
+    # print(result)
+    
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+      CLIENT_SECRETS_FILE, scopes=SCOPES)
+    
+    flow.redirect_uri = url_for('oauth2callback', _external=True)
+
+    authorization_url, state = flow.authorization_url(
+      access_type='offline',
+      include_granted_scopes='true',
+      state=client_code)
+
+    return redirect(authorization_url)
+    # return {}
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    if 'state' not in request.args: abort(400)
+    if 'error' in request.args: abort(401)
+    state = request.args['state']
+    
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+    CLIENT_SECRETS_FILE,
+    SCOPES,
+    state=state)
+    flow.redirect_uri = url_for('oauth2callback', _external=True)
+
+    authorization_response = request.url
+    flow.fetch_token(authorization_response=authorization_response)
+
+    # client['MilesmartMain']['UserTokens'].insert_one({
+    #     '_id': state,
+    #     'timestamp': datetime.datetime.utcnow(),
+    #     'token': flow.credentials.token
+    # })
+
+    requests.request(
+        method='GET',
+        url=''
+    )
 
     return {}
 

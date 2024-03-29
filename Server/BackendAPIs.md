@@ -40,19 +40,19 @@ This article includes the details of all APIs that are planned to implement and 
 
 ## How to Authenticate
 
-1. Get a login access code from the endpoint `/session_token`
+1. Get a login access code from the endpoint `/client_code`
     - Basic Authentication is required with username as client_id and password as client_secret.
     - Response will be in the schema:
         ```
-        { session_token: long }
+        { client_code: long }
         ```
     Sample Code
     ```
-    http://client_id:client_password@api.milesmart.com/session_token
+    http://client_id:client_password@api.milesmart.com/client_code
     ```
-2. Open the `/login` endpoint with session_token as url argument in a new window or new tab of the browser
-3. After the login, use `/token` endpoint to get the token by passing session_token as argument.
+2. Open the `/login` endpoint with client_code as url argument in a new window or new tab of the browser
+3. After the login, use `/token` endpoint to get the token by passing client_code as argument.
     Sample Code
     ```
-    http://api.milesmart.com/token?session_token=s_token
+    http://api.milesmart.com/token?client_code=s_token
     ```
