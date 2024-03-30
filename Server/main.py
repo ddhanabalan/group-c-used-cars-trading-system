@@ -8,6 +8,7 @@ from flask import Flask, abort, redirect, request, send_file, url_for
 from flask_cors import CORS
 from pymongo import MongoClient
 import requests
+import jwt
 
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
@@ -16,7 +17,7 @@ import googleapiclient.discovery
 from idgen import generate_id
 
 app = Flask(__name__)
-app.secret_key = "ABCDEFGH"
+app.secret_key = "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"
 CORS(app)
 
 username = "admin"
@@ -266,26 +267,65 @@ def oauth2callback():
     state = request.args['state']
     
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-    CLIENT_SECRETS_FILE,
-    SCOPES,
-    state=state)
+        CLIENT_SECRETS_FILE,
+        SCOPES,
+        state=state)
     flow.redirect_uri = url_for('oauth2callback', _external=True)
 
     authorization_response = request.url
     flow.fetch_token(authorization_response=authorization_response)
 
-    # client['MilesmartMain']['UserTokens'].insert_one({
-    #     '_id': state,
-    #     'timestamp': datetime.datetime.utcnow(),
-    #     'token': flow.credentials.token
-    # })
-
-    requests.request(
+    response = requests.request(
         method='GET',
-        url=''
+        url='https://www.googleapis.com/oauth2/v2/userinfo',
+        headers={
+            'Authorization': f'Bearer {flow.credentials.token}'
+        }
     )
 
+    user_data = response.json()
+    user_query = list(client['MilesmartMain']['User'].find({
+        '_id': user_data['id']
+    }))
+
+    if len(user_query) != 1:
+        client['MilesmartMain']['User'].insert_one(user = {
+            '_id': user_data['id'],
+            'name': user_data['name'],
+            'email': user_data['email'],
+            'picture': user_data['picture'],
+            'role': 'User'
+        })
+    else: user = user_query[0]
+
+    token = jwt.encode({
+        'uid': user['_id'],
+        'role': user['role'], 
+    }, app.config['SECRET_KEY'])
+
+    client['MilesmartMain']['UserTokens'].insert_one({
+        '_id': state,
+        'timestamp': datetime.datetime.now(datetime.UTC),
+        'token': token
+    })
+
     return {}
+
+@app.route('/token')
+def token():
+    if 'client_code' not in request.args: abort(400)
+
+    client_code = request.args['client_code']
+
+    token_query = list(client['MilesmartMain']['UserTokens'].find({
+        '_id': client_code
+    }))
+
+    if len(token_query) == 0: abort(401)
+
+    return {
+        'token': token_query[0]['token']
+    }
 
 if __name__ == '__main__':
     app.run(debug=True)
