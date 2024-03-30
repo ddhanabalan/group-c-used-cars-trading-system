@@ -1,18 +1,18 @@
 #!.venv/bin/python3
 
-import base64
 import datetime
+import math
 import os
 from random import Random
+from typing import Any
 from flask import Flask, abort, redirect, request, send_file, url_for
 from flask_cors import CORS
 from pymongo import MongoClient
+from pymongo.collection import Collection
 import requests
 import jwt
 
-import google.oauth2.credentials
 import google_auth_oauthlib.flow
-import googleapiclient.discovery
 
 from idgen import generate_id
 
@@ -38,92 +38,78 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 #     print(path)
 #     return send_file(f'static/{path}')
 
-@app.route('/vehicles', methods=['GET'])
-def search():
-    skip = int(request.args["page"])*30 if 'page' in request.args else 0
+def make_range_filter(dest: dict[str, int], src: dict[str, str], src_key_name: str, dest_key_name: str):
+    min_key_name = f'{src_key_name}_min'
+    max_key_name = f'{src_key_name}_max'
+    if dest_key_name not in dest: dest[dest_key_name] = {}
+    if min_key_name in src: dest[dest_key_name]['$gte'] = int(src[min_key_name])
+    if max_key_name in src: dest[dest_key_name]['$lte'] = int(src[max_key_name])
+    if len(dest[dest_key_name]) == 0: dest.clear()
 
-    search_key = request.args['sk'] if 'sk' in request.args else ''
-
-    filter={
-        '$and': [
-            {
-                '$or': [
-                    { 'model': { '$regex': search_key } },
-                    { 'manufacturer': { '$regex': search_key } }
-                ]
+def find_range(src: Collection, field: str, filters: dict[str, Any]|None = None) -> dict[str, int]:
+    query_response = list(src.aggregate([
+        { '$match': filters },
+        {
+            '$group': {
+                '_id': None, 
+                f'max_{field}': { '$max': f'${field}' }, 
+                f'min_{field}': { '$min': f'${field}' }
             }
+        }
+    ]))
+
+    if len(query_response) == 0: return {}
+    return query_response[0]
+
+def make_sorted_list(src: Collection, key: str, filter_options: dict[str, Any]|None = None) -> list:
+    query_response = list(src.find(filter=filter_options, projection={key: 1}, sort={key: 1}))
+    target_list = list(map(lambda i: i[key] if key in i else -1, query_response))
+    return target_list
+
+@app.route('/vehicles', methods=['GET'])
+@app.route('/vehicles/<int:id>', methods=['GET'])
+def vehicles(id: int|None = None):
+    page_size = int(request.args["page_size"]) if 'page_size' in request.args else 30
+    skip = int(request.args["page"])*page_size if 'page' in request.args and id is None else 0
+
+    if id is None:
+        search_key = request.args['sk'] if 'sk' in request.args else ''
+
+        search_key_filter = [
+            { 'model': { '$regex': search_key } },
+            { 'manufacturer': { '$regex': search_key } }
         ]
-    }
+        price_filter = {}
+        odo_filter = {}
+        year_filter = {}
+        fuel_filter = {}
 
-    if 'price_min' in request.args:
-        filter['$and'].append({
-            'price': { '$gte': int(request.args['price_min']) }
-        })
+        make_range_filter(price_filter, request.args, 'price', 'price')
+        make_range_filter(odo_filter, request.args, 'odo', 'odometer')
+        make_range_filter(year_filter, request.args, 'year', 'year')
 
-    if 'price_max' in request.args:
-        filter['$and'].append({
-            'price': { '$lte': int(request.args['price_max']) }
-        })
-
-    if 'year_min' in request.args:
-        filter['$and'].append({
-            'year': { '$gte': int(request.args['year_min']) }
-        })
-
-    if 'year_max' in request.args:
-        filter['$and'].append({
-            'year': { '$lte': int(request.args['year_max']) }
-        })
-
-    if 'odo_min' in request.args:
-        filter['$and'].append({
-            'odometer': { '$gte': int(request.args['odo_min']) }
-        })
-
-    if 'odo_max' in request.args:
-        filter['$and'].append({
-            'odometer': { '$lte': int(request.args['odo_max']) }
-        })
-
-    if 'fuel_types' in request.args:
-        filter['$and'].append({
-            'fuel': { '$in': request.args['fuel_types'].split(',') }
-        })
-    
-    project = {
-        'manufacturer': 1, 
-        'model': 1, 
-        'price': 1, 
-        'transmission': 1, 
-        'fuel': 1, 
-        'odometer': 1, 
-        'state': 1, 
-        'img_urls': 1,
-        'year': 1
-    }
+        if 'fuel_types' in request.args:
+            fuel_filter['fuel'] = { '$in': request.args['fuel_types'].split(',') }
 
     images = list[str]()
     for i in range(1, 6):
         images.append(f'car{i}.jpg')
     for i in range(1, 6):
         images.append(f'interior{i}.jpg')
-
-    result = list(client['MilesmartMain']['Car'].find(filter=filter, projection=project, skip=skip, limit=30))
-    for vehicle in result:
-        image_urls = list[str]()
-        for i in range(Random().randint(3, 10)):
-            image_urls.append(f'{request.url_root}file/{images[Random().randint(0,4 if i < 2 else 9)]}')
-        vehicle['image_urls'] = image_urls
     
-    return result
-
-@app.route('/vehicles/<int:id>', methods=['GET'])
-def vehicle(id: int):
-    filter = {
-        '$match': {
-            '_id': id
-        }
+    match = {
+        '$match': { 
+            '$or': search_key_filter, 
+            **price_filter, 
+            **odo_filter, 
+            **year_filter,
+            **fuel_filter 
+        } if id is None else { '_id': id }
     }
+
+    if 'uid' in request.args:
+        uid = int(request.args['uid'])
+        match['$match'] = { 'owner': uid }
 
     lookup = {
         '$lookup': {
@@ -135,25 +121,57 @@ def vehicle(id: int):
     }
 
     unwind = { '$unwind': { 'path': '$owner' } }
-    result = list(client['MilesmartMain']['Car'].aggregate([lookup, unwind, filter, { '$limit': 1 }]))
 
-    #Dummy Image injector
-    images = list[str]()
-    for i in range(1, 6):
-        images.append(f'car{i}.jpg')
-    for i in range(1, 6):
-        images.append(f'interior{i}.jpg')
+    result = list(client['MilesmartMain']['Car'].aggregate([match, lookup, unwind, { '$limit': page_size }, { '$skip': skip }]))
 
-    if len(result) <= 0: abort(404)
+    for vehicle in result:
+        image_urls = list[str]()
+        for i in range(Random().randint(3, 10)):
+            image_urls.append(f'{request.url_root}file/{images[Random().randint(0,4 if i < 2 else 9)]}')
+        vehicle['image_urls'] = image_urls
+        
+    if id is None:
+        filters_bound = request.args['filters_bound'] == 'True' or request.args['filters_bound'] == 'true' if 'filters_bound' in request.args else True
+        price_range = find_range(client['MilesmartMain']['Car'], 'price', { '$or': search_key_filter, **odo_filter, **year_filter, **fuel_filter }) if filters_bound else {}
+        odo_range = find_range(client['MilesmartMain']['Car'], 'odometer', { '$or': search_key_filter, **price_filter, **year_filter, **fuel_filter }) if filters_bound else {}
+        year_range = find_range(client['MilesmartMain']['Car'], 'year', { '$or': search_key_filter, **price_filter, **odo_filter, **fuel_filter }) if filters_bound else {}
+        # price_list = make_sorted_list(client['MilesmartMain']['Car'], 'price', { '$or': search_key_filter, **odo_filter, **year_filter, **fuel_filter })
+        # odo_list = make_sorted_list(client['MilesmartMain']['Car'], 'odometer', { '$or': search_key_filter, **price_filter, **year_filter, **fuel_filter })
+        # year_list = make_sorted_list(client['MilesmartMain']['Car'], 'year', { '$or': search_key_filter, **price_filter, **odo_filter, **fuel_filter })
+        fuel_list = { 'fuel_types': list(client['MilesmartMain']['Car'].distinct('fuel', { '$or': search_key_filter, **price_filter, **odo_filter, **year_filter })) } if filters_bound else {}
+        count_response = list(client['MilesmartMain']['Car'].aggregate([match, { '$count': 'count' }]))
+        results_count = count_response[0]['count'] if len(count_response) > 0 else 0
 
-    vehicle = result[0]
-    image_urls = list[str]()
-    for i in range(Random().randint(3, 10)):
-        image_urls.append(f'{request.url_root}file/{images[Random().randint(0,4 if i < 2 else 9)]}')
-    vehicle['image_urls'] = image_urls
+        # odo_list = list(filter(lambda i: i != -1, odo_list))
+
+        rt_obj = {
+            'pages': math.ceil(results_count/page_size),
+            'count': results_count,
+            'results': result,
+            **fuel_list,
+            **price_range,
+            **odo_range,
+            **year_range
+        }
+
+        # if len(price_list) > 0: 
+        #     rt_obj['min_price'] = price_list[0]
+        #     rt_obj['max_price'] = price_list[-1]
+
+        # if len(odo_list) > 0: 
+        #     rt_obj['min_odo'] = odo_list[0]
+        #     rt_obj['max_odo'] = odo_list[-1]
+
+        # if len(year_list) > 0: 
+        #     rt_obj['min_year'] = year_list[0]
+        #     rt_obj['max_year'] = year_list[-1]
+
+        return rt_obj
+
+    else:
+        if len(result) <= 0: abort(404)
+        return result[0]
     
-    return vehicle
-
 # Storage Functions
 def get_path(mkdir:bool = False)->tuple[str|None, int]:
     if not 'path' in request.args: return None, 1
@@ -222,7 +240,7 @@ def client_code():
 
     id = generate_id()
     client['MilesmartMain']['ClientCodes'].insert_one({
-        'timestamp': datetime.datetime.utcnow(),
+        'timestamp': datetime.datetime.now(datetime.UTC),
         'code': id
     })
 
@@ -244,8 +262,6 @@ def login():
     }))
 
     if len(token_query) != 0: return {}
-
-    # print(result)
     
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
       CLIENT_SECRETS_FILE, scopes=SCOPES)
@@ -290,7 +306,7 @@ def oauth2callback():
 
     if len(user_query) != 1:
         client['MilesmartMain']['User'].insert_one(user = {
-            '_id': user_data['id'],
+            '_id': int(user_data['id']),
             'name': user_data['name'],
             'email': user_data['email'],
             'picture': user_data['picture'],
@@ -299,7 +315,7 @@ def oauth2callback():
     else: user = user_query[0]
 
     token = jwt.encode({
-        'uid': user['_id'],
+        'uid': int(user['_id']),
         'role': user['role'], 
     }, app.config['SECRET_KEY'])
 

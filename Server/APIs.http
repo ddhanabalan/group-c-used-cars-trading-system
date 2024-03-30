@@ -7,6 +7,14 @@ GET http://localhost:5000/login?client_code=m6_PZLPC HTTP/1.1
 ### Fetch the Token When Authentication is sucessfull
 GET http://localhost:5000/token?client_code=m6_PZLPC HTTP/1.1
 
-###
-GET https://www.googleapis.com/oauth2/v2/userinfo
-Authorization: Bearer ya29.a0Ad52N38-BMYz1sdZdBVENfd_bWnGQ6eeo_dp_TPnAPVFUGP2sIddXo5qL4zNCs-0KebkvmFJzrjm1lh6wFpVRFADxxYptTlZJQ6rA9rJ4_OtPfMko6XZyVLw6XijyL8cNk2Xz6kFbFIn8RwsJi4ygNQD6Jrz_Y-CMsgaCgYKAbsSARASFQHGX2MiUH38mAiVbeyKHfVo4M25vQ0170
+### Fetch the details of a Vehicle with id
+GET http://localhost:5000/vehicles/7309863303 HTTP/1.1
+
+### Search for a vehicle with search_key = 'che'
+GET http://localhost:5000/vehicles?uid=1707668084&filters_bound=false HTTP/1.1
+
+### Search for a vehicle with search_key = 'che' and odometer max 25000
+GET http://localhost:5000/vehicles?sk=che&odo_max=25000 HTTP/1.1
+
+### Search for a vehicle with search_key = 'che' and odometer max 25000 with fuel type gas
+GET http://localhost:5000/vehicles?sk=che&odo_max=25000&fuel_types=gas HTTP/1.1

@@ -11,18 +11,21 @@
 - `year_max: int` Year Filter Max Value
 - `fuel_types: [string]` Fuel Filter
 - `page: int` Page Number
+- `page_size: int` Results Per Page
 - `uid: long` id of owner
+- `filters_bound: bool` Whether to calculate valid filters range
 ## Response Schemas
 - Response Code: 200
     ```
     {
         min_price: int,
         max_price: int,
-        min_odo: int,
-        max_odo: int,
+        min_odometer: int,
+        max_odometer: int,
         min_year: int,
         max_year: int,
         pages: int,
+        count: int
         fuel_types: [string],
         results: [
             {
