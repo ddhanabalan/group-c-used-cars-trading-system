@@ -1,7 +1,7 @@
 import time
 
 def generate_id() -> str:
-    code = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    code = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+_"
     string = ""
     n = int(time.time()*100000)
     while n>0:

@@ -1,7 +1,12 @@
-GET http://ansif:pass@localhost:5000/login HTTP/1.1
-
-###
-GET http://localhost:5000/login?client_code=m63oZEL2 HTTP/1.1
-
-###
+### Fetch Client Code For Login Request
 GET http://clientweb1:password1@localhost:5000/client_code HTTP/1.1
+
+### Open Login Link in New Tab with Client Code
+GET http://localhost:5000/login?client_code=m6_PZLPC HTTP/1.1
+
+### Fetch the Token When Authentication is sucessfull
+GET http://localhost:5000/token?client_code=m6_PZLPC HTTP/1.1
+
+###
+GET https://www.googleapis.com/oauth2/v2/userinfo
+Authorization: Bearer ya29.a0Ad52N38-BMYz1sdZdBVENfd_bWnGQ6eeo_dp_TPnAPVFUGP2sIddXo5qL4zNCs-0KebkvmFJzrjm1lh6wFpVRFADxxYptTlZJQ6rA9rJ4_OtPfMko6XZyVLw6XijyL8cNk2Xz6kFbFIn8RwsJi4ygNQD6Jrz_Y-CMsgaCgYKAbsSARASFQHGX2MiUH38mAiVbeyKHfVo4M25vQ0170
