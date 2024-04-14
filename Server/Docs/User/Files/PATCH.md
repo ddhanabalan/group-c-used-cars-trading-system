@@ -1,3 +1,4 @@
+< [Home](../../../BackendAPIs.md)
 # Update The File or File Metadata
 - Endpoint: `/user/files/<id>` `PATCH`
 - Authentication Required as Normal User

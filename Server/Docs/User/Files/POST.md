@@ -1,3 +1,4 @@
+< [Home](../../../BackendAPIs.md)
 # Upload Files
 - Endpoint: `/user/files` `POST`
 - Authentication Required as Normal User

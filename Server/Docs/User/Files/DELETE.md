@@ -1,3 +1,4 @@
+< [Home](../../../BackendAPIs.md)
 # Delete Files
 - Endpoint: `/user/files/<id>` `DELETE`
 - Authentication Required as Normal User

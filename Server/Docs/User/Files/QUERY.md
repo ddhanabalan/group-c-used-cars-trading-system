@@ -1,3 +1,4 @@
+< [Home](../../../BackendAPIs.md)
 # List Files of Authenticated User
 - Endpoint: `/user/files` `GET`
 - Authentication Required as Normal User
