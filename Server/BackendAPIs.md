@@ -1,24 +1,24 @@
 # Milesmart Backend APIs
 This article includes the details of all APIs that are planned to implement and are already implemented in the server of milesmart.
-## Vehicle Endpoints
-- `/vehicles` `GET` [List Vehicles Globally](Docs/Vehicles/QUERY.md) (*Ready To Use*)
-- `/vehicles/<id>` `GET` [Fetch Details of A Vehicle](Docs/Vehicles/GET.md) (*Ready To Use*)
-- `/vehicles/<id>` `DELETE` [Delete Details of A Vehicle](Docs/Vehicles/DELETE.md) (*Arrive in Phase 2*)
-- `/user/vehicles` `GET` [List Vehicles of Authenticated User](Docs/User/Vehicles/QUERY.md) (*Arrive in Phase 2*)
-- `/user/vehicles` `POST` [Create New Vehicle](Docs/User/Vehicles/POST.md) (*Arrive in Phase 2*)
-- `/user/vehicles/<id>` `GET` [Fetch Details of Vehicle of Authenticated User](Docs/User/Vehicles/GET.md) (*Arrive in Phase 2*)
-- `/user/vehicles/<id>` `PATCH` [Update Vehicle Details](Docs/User/Vehicles/PATCH.md) (*Arrive in Phase 2*)
-- `/user/vehicles/<id>` `DELETE` [Delete Vehicle Details](Docs/User/Vehicles/DELETE.md) (*Arrive in Phase 2*)
+## Vehicle Endpoints *(Arrives in Demo 2: Week 2)*
+- `/vehicles` `GET` [List Vehicles Globally](Docs/Vehicles/QUERY.md) *(Ready To Use)*
+- `/vehicles/<id>` `GET` [Fetch Details of A Vehicle](Docs/Vehicles/GET.md) *(Ready To Use)*
+- `/vehicles/<id>` `DELETE` [Delete Details of A Vehicle](Docs/Vehicles/DELETE.md) *(Ready To Use)*
+- `/user/vehicles` `GET` [List Vehicles of Authenticated User](Docs/User/Vehicles/QUERY.md) *(Ready To Use)*
+- `/user/vehicles` `POST` [Create New Vehicle](Docs/User/Vehicles/POST.md) *(Ready To Use)*
+- `/user/vehicles/<id>` `GET` [Fetch Details of Vehicle of Authenticated User](Docs/User/Vehicles/GET.md) *(Planning to Drop)*
+- `/user/vehicles/<id>` `PATCH` [Update Vehicle Details](Docs/User/Vehicles/PATCH.md) *(Ready To Use)*
+- `/user/vehicles/<id>` `DELETE` [Delete Vehicle Details](Docs/User/Vehicles/DELETE.md) *(Ready To Use)*
 
-## File Storage Enpoints (Dummy Available, Arrives in Phase 2)
-- `/files/<id>` `GET` [Download/View a File](Docs/Files/GET.md)
-- `/files/<id>` `DELETE` [Delete a File](Docs/Files/DELETE.md)
-- `/user/files` `GET` [List Current User Files Metadata](Docs/User/Files/QUERY.md)
-- `/user/files` `POST` [Upload a File](Docs/User/Files/POST.md)
-- `/user/files/<id>` `GET` [View The File metadata](Docs/User/Files/GET.md)
-- `/user/files/<id>` `PATCH` [Update File or File metadata](Docs/User/Files/PATCH.md)
-- `/user/files/<id>` `DELETE` [Delete a File](Docs/User/Files/DELETE.md)
-## User Endpoints
+## File Storage Endpoints *(Arrives in Demo 2: Week 2)*
+- `/files/<id>` `GET` [Download/View a File](Docs/Files/GET.md) *(Ready To Use)*
+- `/files/<id>` `DELETE` [Delete a File](Docs/Files/DELETE.md) *(Ready To Use)*
+- `/user/files` `GET` [List Current User Files Metadata](Docs/User/Files/QUERY.md) *(Ready To Use)*
+- `/user/files` `POST` [Upload a File](Docs/User/Files/POST.md) *(Ready To Use)*
+- `/user/files/<id>` `GET` [View The File metadata](Docs/User/Files/GET.md) *(Ready To Use)*
+- `/user/files/<id>` `PATCH` [Update File or File metadata](Docs/User/Files/PATCH.md) *(Postponed to Week 3)*
+- `/user/files/<id>` `DELETE` [Delete a File](Docs/User/Files/DELETE.md) *(Ready To Use)*
+## User Endpoints *(Arrives in Demo 2: Week 3)*
 
 - `/user/info` `GET` [Get Details of Authenticated User](Docs/GET.User.md)
 - `/user/info` `PATCH` [Update Details of Authenticated User](Docs/PATCH.User.md)

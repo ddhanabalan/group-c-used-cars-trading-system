@@ -1,13 +1,14 @@
 import datetime
+from functools import wraps
 import os
 import time
 from typing import Any
 from googleapiclient.discovery import build
-from flask import abort, redirect, request, send_file, url_for
+from flask import abort, redirect, request, send_file, url_for, has_request_context
 import google_auth_oauthlib
 import jwt
 import requests
-from . import milemartServer, mongodbClient
+from . import generate_id, milemartServer, mongodbClient
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 CLIENT_SECRETS_FILE = "Server/client_secret.json"
@@ -21,15 +22,11 @@ SCOPES = [
     'https://www.googleapis.com/auth/user.gender.read',
 ]
 
-def generate_id() -> str:
-    code = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+_"
-    string = ""
-    n = int(time.time()*100000)
-    while n>0:
-        rem = n%64
-        n //= 64
-        string = code[rem] + string
-    return string
+AUTH_PRIVILEGE_NONE = 0
+AUTH_PRIVILEGE_USER = 1
+AUTH_PRIVILEGE_AGENT = 2
+AUTH_PRIVILEGE_COADMIN = 3
+AUTH_PRIVILEGE_ADMIN = 4
 
 def find_primary_field(src: list[dict[str, Any]]) -> dict[str, Any]|None:
     for field in src:
@@ -71,7 +68,7 @@ def login():
             '_id': token_query[0]['uid']
         }))
         user_data = user_data_query[0]
-        return redirect(url_for('summary', user_name=user_data['name'], user_email=user_data['email'], user_dp=user_data['picture'], user_phone=user_data['phone']['value'] if user_data['phone'] is not None else 'Phone Unavailable'))
+        return redirect(url_for('summary', user_name=user_data['name'], user_email=user_data['email'], user_dp=user_data['picture'], user_phone=user_data['phone'] if user_data['phone'] is not None else 'Phone Unavailable'))
     
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
       CLIENT_SECRETS_FILE, scopes=SCOPES)
@@ -108,30 +105,31 @@ def oauth2callback():
     )
 
     userinfo = userinfo_response.json()
+    uid = generate_id(int(userinfo['id']))
 
     user_query = list(mongodbClient['MilesmartMain']['User'].find({
-        '_id': userinfo['id']
+        '_id': uid
     }))
 
     if len(user_query) != 1:
         profile_response = requests.request(
             method='GET',
-            url='https://people.googleapis.com/v1/people/me?personFields=addresses,genders,phoneNumbers',
+            url='https://people.googleapis.com/v1/people/me?personFields=genders,phoneNumbers',
             headers={ 'Authorization': f'Bearer {flow.credentials.token}' }
         )
 
         profile = profile_response.json()
         
         user_data = {
-            '_id': userinfo['id'],
+            '_id': uid,
             'name': userinfo['name'],
             'first_name': userinfo['given_name'],
             'email': userinfo['email'],
             'picture': userinfo['picture'],
-            'address': find_primary_field(profile['addresses']) if 'addresses' in profile else None,
-            'gender': find_primary_field(profile['genders']) if 'genders' in profile else None,
-            'phone': find_primary_field(profile['phoneNumbers']) if 'phoneNumbers' in profile else None,
-            'role': 'User'
+            # 'address': find_primary_field(profile['addresses']) if 'addresses' in profile else None,
+            'gender': find_primary_field(profile['genders'])['value'] if 'genders' in profile else None,
+            'phone': find_primary_field(profile['phoneNumbers'])['value'] if 'phoneNumbers' in profile else None,
+            'privilege': 1
         }
 
         mongodbClient['MilesmartMain']['User'].insert_one(user_data)
@@ -141,7 +139,7 @@ def oauth2callback():
 
     token = jwt.encode({
         'uid': user_data['_id'],
-        'role': user_data['role'], 
+        'privilege': user_data['privilege'], 
     }, milemartServer.config['SECRET_KEY'])
 
     mongodbClient['MilesmartMain']['UserTokens'].insert_one({
@@ -151,7 +149,7 @@ def oauth2callback():
         'token': token
     })
 
-    return redirect(url_for('summary', user_name=user_data['name'], user_email=user_data['email'], user_dp=user_data['picture'], user_phone=user_data['phone']['value'] if user_data['phone'] is not None else 'Phone Unavailable'))
+    return redirect(url_for('summary', user_name=user_data['name'], user_email=user_data['email'], user_dp=user_data['picture'], user_phone=user_data['phone'] if user_data['phone'] is not None else 'Phone Unavailable'))
 
 @milemartServer.route('/token')
 def token():
@@ -174,3 +172,21 @@ def token():
 def summary(filename:str|None = None):
     if filename is None: return send_file('../ui/index.html')
     else: return send_file(f'../ui/{filename}')
+
+def requiresAuthPrivilege(privilege_required: int):
+    def inner_func(func):
+        @wraps(func)
+        def wrapper_func(*args, **kwargs):
+            if request.authorization == None: abort(401)
+            if request.authorization.type != "bearer": abort(401)
+            if request.authorization.token == None: abort(401)
+
+            user_privilege = jwt.decode(request.authorization.token, milemartServer.config['SECRET_KEY'], algorithms=['HS256'])['privilege']
+            if user_privilege < privilege_required : abort(401)
+            return func(*args, **kwargs)
+        
+        return wrapper_func
+    return inner_func
+
+def get_current_user_id() -> str:
+    return jwt.decode(request.authorization.token, milemartServer.config['SECRET_KEY'], algorithms=['HS256'])['uid']

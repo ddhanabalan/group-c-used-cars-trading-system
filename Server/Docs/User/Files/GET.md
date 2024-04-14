@@ -1,3 +1,4 @@
+< [Home](../../../BackendAPIs.md)
 # Get The File Metadata
 - Endpoint: `/user/files/<id>` `GET`
 - Authentication Required as Normal User

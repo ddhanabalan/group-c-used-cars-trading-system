@@ -2,19 +2,101 @@
 GET http://clientweb1:password1@localhost:5000/client_code HTTP/1.1
 
 ### Open Login Link in New Tab with Client Code
-GET http://localhost:5000/login?client_code=m7RzM8dM HTTP/1.1
+GET http://localhost:5000/login?client_code=m8usfXF_ HTTP/1.1
 
 ### Fetch the Token When Authentication is sucessfull
-GET http://localhost:5000/token?client_code=m7Q3W0Rq HTTP/1.1
+GET http://localhost:5000/token?client_code=m8ugRHwJ HTTP/1.1
+
+
+
+### Search For Vehicles
+GET http://localhost:5000/vehicles HTTP/1.1
+
+### Search with key 'che'
+GET http://localhost:5000/vehicles?sk=che HTTP/1.1
 
 ### Fetch the details of a Vehicle with id
-GET http://localhost:5000/vehicles/7309863303 HTTP/1.1
+GET http://localhost:5000/vehicles/m823qYKO HTTP/1.1
 
-### Search for a vehicle with search_key = 'che'
-GET http://localhost:5000/vehicles?uid=1707668084&filters_bound=false HTTP/1.1
+### Search for my vehicles 
+GET http://localhost:5000/user/vehicles HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJCbEFyUERpSndUYnEiLCJwcml2aWxlZ2UiOjF9.sg5bqyTINRXcZ4TwLP09vcIdidtphmQRLWARF9lsAJE
 
-### Search for a vehicle with search_key = 'che' and odometer max 25000
-GET http://localhost:5000/vehicles?sk=che&odo_max=25000 HTTP/1.1
+### Post a Vehicle
+POST http://localhost:5000/user/vehicles HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJCbEFyUERpSndUYnEiLCJwcml2aWxlZ2UiOjF9.sg5bqyTINRXcZ4TwLP09vcIdidtphmQRLWARF9lsAJE
+Content-Type: application/json
 
-### Search for a vehicle with search_key = 'che' and odometer max 25000 with fuel type gas
-GET http://localhost:5000/vehicles?sk=che&odo_max=25000&fuel_types=gas HTTP/1.1
+{
+    "image_urls": [
+        "http://localhost:5000/files/m82mLDjO"
+    ],
+    "model": "town country",
+    "VIN": "2C4GP44392R547816",
+    "description": "My Car is a Nice car",
+    "posting_date": "2021-04-20 11:32:25-05:00",
+    "price": 2744,
+    "year": 2002,
+    "manufacturer": "chrysler",
+    "condition": "excellent",
+    "cylinders": "6 cylinders",
+    "fuel": "gas",
+    "odometer": 229031,
+    "title_status": "clean",
+    "transmission": "automatic",
+    "drive": "fwd",
+    "type": "mini-van",
+    "paint_color": "blue",
+    "state": "ia"
+}
+
+### Update a Vehicle Data
+PATCH http://localhost:5000/user/vehicles/m823qYKO HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJCbEFyUERpSndUYnEiLCJwcml2aWxlZ2UiOjF9.sg5bqyTINRXcZ4TwLP09vcIdidtphmQRLWARF9lsAJE
+Content-Type: application/json
+
+{
+    "price": 3000,
+    "year": 2002,
+    "odometer": 221000,
+    "transmission": "manual",
+    "paint_color": "black"
+}
+
+### Delete my vehicle
+DELETE http://localhost:5000/user/vehicles/m823qYKO HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJCbEFyUERpSndUYnEiLCJwcml2aWxlZ2UiOjF9.sg5bqyTINRXcZ4TwLP09vcIdidtphmQRLWARF9lsAJE
+
+
+
+### Upload a file
+POST http://localhost:5000/user/files
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJCbEFyUERpSndUYnEiLCJwcml2aWxlZ2UiOjF9.sg5bqyTINRXcZ4TwLP09vcIdidtphmQRLWARF9lsAJE
+Content-Type: multipart/form-data; boundary=x
+
+--x
+Content-Disposition: form-data; name="path"
+
+myfile.txt
+--x
+Content-Disposition: form-data; name="file"; filename="1.png"
+Content-Type: image/png
+
+< ./Server/storage/ansif.png
+--x--
+
+### List My Files
+GET http://localhost:5000/user/files
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJCbEFyUERpSndUYnEiLCJwcml2aWxlZ2UiOjF9.sg5bqyTINRXcZ4TwLP09vcIdidtphmQRLWARF9lsAJE
+
+### Download a file
+GET http://localhost:5000/files/m82mLDjO
+
+### View a file metadata
+GET http://localhost:5000/user/files/m82mLDjO
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJCbEFyUERpSndUYnEiLCJwcml2aWxlZ2UiOjF9.sg5bqyTINRXcZ4TwLP09vcIdidtphmQRLWARF9lsAJE
+
+### Delete a file
+DELETE http://localhost:5000/user/files/m82mLDjO
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJCbEFyUERpSndUYnEiLCJwcml2aWxlZ2UiOjF9.sg5bqyTINRXcZ4TwLP09vcIdidtphmQRLWARF9lsAJE
+ 

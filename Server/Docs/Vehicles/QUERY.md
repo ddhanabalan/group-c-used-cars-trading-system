@@ -1,3 +1,4 @@
+< [Home](../../BackendAPIs.md)
 # List Vehicles Globally based on filters
 - Endpoint: `/vehicles` `GET`
 - No Authentication Required
@@ -35,6 +36,7 @@
                 description: string, 
                 drive: string|null, 
                 fuel: string, 
+                image_urls: [string]
                 manufacturer: string, 
                 model: string, 
                 odometer: long, 

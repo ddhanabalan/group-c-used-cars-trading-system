@@ -1,3 +1,4 @@
+< [Home](../../../BackendAPIs.md)
 # Create New Vehicle as Authenticated User as Owner
 - Endpoint: `/user/vehicles` `POST`
 - Authentication Required as Normal User
@@ -8,6 +9,7 @@
 - `description: string` Description on the Vehicle (**Required**)
 - `drive: string` Drive of the Vehicle
 - `fuel: string` Fuel Type of the Vehicle (**Required**)
+- `image_urls: [string]` List of comma seperated Image urls (**Required Atleast1**)
 - `manufacturer: string` Manufacturer of the Vehicle (**Required**)
 - `model: string` Model name of the Vehicle (**Required**)
 - `odometer: long` Current Odometer reading (**Required**)
@@ -30,6 +32,7 @@
         description: string, 
         drive: string|null, 
         fuel: string, 
+        image_urls: [string]
         manufacturer: string, 
         model: string, 
         odometer: long, 
