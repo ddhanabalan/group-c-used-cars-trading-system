@@ -2,11 +2,11 @@ import math
 from random import Random
 import time
 from typing import Any
-from flask import abort, request
+from flask import Response, abort, request
 from pymongo.collection import Collection
 
-from .authentication import AUTH_PRIVILEGE_ADMIN, AUTH_PRIVILEGE_USER, get_current_user_id, requiresAuthPrivilege
-from . import generate_id, mongodbClient, milemartServer
+from .authentication import AUTH_PRIVILEGE_COADMIN, AUTH_PRIVILEGE_USER, requiresAuthPrivilege
+from . import generate_id, mainDatabase, milesmartServer
 
 def make_range_filter(dest: dict[str, int], src: dict[str, str], src_key_name: str, dest_key_name: str):
     min_key_name = f'{src_key_name}_min'
@@ -36,14 +36,14 @@ def make_sorted_list(src: Collection, key: str, filter_options: dict[str, Any]|N
     target_list = list(map(lambda i: i[key] if key in i else -1, query_response))
     return target_list
 
-@milemartServer.route('/user/vehicles', methods=['GET'])
+@milesmartServer.route('/user/vehicles', methods=['GET'])
 @requiresAuthPrivilege(AUTH_PRIVILEGE_USER)
-def my_vehicles():
-    return vehicles(uid=get_current_user_id())
+def my_vehicles(current_user = None):
+    return vehicles(uid=current_user['_id'])
 
-@milemartServer.route('/vehicles', methods=['GET'])
-@milemartServer.route('/vehicles/<int:id>', methods=['GET']) # Deprecated Route
-@milemartServer.route('/vehicles/<id>', methods=['GET'])
+@milesmartServer.route('/vehicles', methods=['GET'])
+@milesmartServer.route('/vehicles/<int:id>', methods=['GET']) # Deprecated Route
+@milesmartServer.route('/vehicles/<id>', methods=['GET'])
 def vehicles(id: int|str|None = None, uid: str|None = None):
     page_size = int(request.args["page_size"]) if 'page_size' in request.args else 30
     skip = int(request.args["page"])*page_size if 'page' in request.args and id is None else 0
@@ -73,11 +73,11 @@ def vehicles(id: int|str|None = None, uid: str|None = None):
 
         if uid is not None: owner_filter['owner'] = uid
 
-    images = list[str]()
-    for i in range(1, 6):
-        images.append(f'car{i}.jpg')
-    for i in range(1, 6):
-        images.append(f'interior{i}.jpg')
+    # images = list[str]()
+    # for i in range(1, 6):
+    #     images.append(f'car{i}.jpg')
+    # for i in range(1, 6):
+    #     images.append(f'interior{i}.jpg')
     
     match = {
         '$match': { 
@@ -101,28 +101,27 @@ def vehicles(id: int|str|None = None, uid: str|None = None):
 
     unwind = { '$unwind': { 'path': '$owner' } }
 
-    result = list(mongodbClient['MilesmartMain']['Car'].aggregate([match, lookup, unwind, { '$limit': page_size }, { '$skip': skip }]))
+    result = list(mainDatabase['Vehicle'].aggregate([match, lookup, unwind, { '$skip': skip }, { '$limit': page_size }]))
 
-    for vehicle in result:
-        image_urls = list[str]()
-        for i in range(Random().randint(3, 10)):
-            image_urls.append(f'{request.url_root}file/{images[Random().randint(0,4 if i < 2 else 9)]}')
-        vehicle['image_urls'] = image_urls
+    # for vehicle in result:
+    #     image_urls = list[str]()
+    #     for i in range(Random().randint(3, 10)):
+    #         image_urls.append(f'{request.url_root}file/{images[Random().randint(0,4 if i < 2 else 9)]}')
+    #     vehicle['image_urls'] = image_urls
         
     if id is None:
-        filters_bound = request.args['filters_bound'] == 'True' or request.args['filters_bound'] == 'true' if 'filters_bound' in request.args else True
-        price_range = find_range(mongodbClient['MilesmartMain']['Car'], 'price', { '$or': search_key_filter, **odo_filter, **year_filter, **fuel_filter, **owner_filter }) if filters_bound else {}
-        odo_range = find_range(mongodbClient['MilesmartMain']['Car'], 'odometer', { '$or': search_key_filter, **price_filter, **year_filter, **fuel_filter, **owner_filter }) if filters_bound else {}
-        year_range = find_range(mongodbClient['MilesmartMain']['Car'], 'year', { '$or': search_key_filter, **price_filter, **odo_filter, **fuel_filter, **owner_filter }) if filters_bound else {}
-        fuel_list = { 'fuel_types': list(mongodbClient['MilesmartMain']['Car'].distinct('fuel', { '$or': search_key_filter, **price_filter, **odo_filter, **year_filter, **owner_filter })) } if filters_bound else {}
-        count_response = list(mongodbClient['MilesmartMain']['Car'].aggregate([match, { '$count': 'count' }]))
-        results_count = count_response[0]['count'] if len(count_response) > 0 else 0
-
+        filter_bounds = request.args['filter_bounds'] == 'True' or request.args['filter_bounds'] == 'true' if 'filter_bounds' in request.args else True
+        price_range = find_range(mainDatabase['Vehicle'], 'price', { '$or': search_key_filter, **odo_filter, **year_filter, **fuel_filter, **owner_filter }) if filter_bounds else {}
+        odo_range = find_range(mainDatabase['Vehicle'], 'odometer', { '$or': search_key_filter, **price_filter, **year_filter, **fuel_filter, **owner_filter }) if filter_bounds else {}
+        year_range = find_range(mainDatabase['Vehicle'], 'year', { '$or': search_key_filter, **price_filter, **odo_filter, **fuel_filter, **owner_filter }) if filter_bounds else {}
+        fuel_list = { 'fuel_types': list(mainDatabase['Vehicle'].distinct('fuel', { '$or': search_key_filter, **price_filter, **odo_filter, **year_filter, **owner_filter })) } if filter_bounds else {}
+        count = mainDatabase['Vehicle'].count_documents({ **match['$match'] })
+        
         # odo_list = list(filter(lambda i: i != -1, odo_list))
 
         rt_obj = {
-            'pages': math.ceil(results_count/page_size),
-            'count': results_count,
+            'pages': math.ceil(count/page_size),
+            'count': count,
             'results': result,
             **fuel_list,
             **price_range,
@@ -148,32 +147,32 @@ def vehicles(id: int|str|None = None, uid: str|None = None):
         if len(result) <= 0: abort(404)
         return result[0]
 
-@milemartServer.route('/user/vehicles/<int:id>', methods=['DELETE']) # Deprecated Route
-@milemartServer.route('/user/vehicles/<id>', methods=['DELETE'])
+@milesmartServer.route('/user/vehicles/<int:id>', methods=['DELETE']) # Deprecated Route
+@milesmartServer.route('/user/vehicles/<id>', methods=['DELETE'])
 @requiresAuthPrivilege(AUTH_PRIVILEGE_USER)
-def user_vehicles_delete(id: int|str):
-    res = mongodbClient['MilesmartMain']['Car'].find_one({ '_id': id }, projection={ 'owner': 1 })
-    if res is None: return { 'error': 'resource_not_found' }, 404
-    if dict(res)['owner'] != get_current_user_id(): return { 'error': 'resource_not_found' }, 404
+def user_vehicles_delete(id: int|str, current_user=None):
+    vehicle = mainDatabase['Vehicle'].find_one_and_delete({ '_id': id, 'owner': current_user['_id'] })
+    if vehicle is None: return { 'error': 'resource_not_found' }, 404
+    
+    # Clear any wishlist for any user which target this vehicle
+    mainDatabase['Wishlist'].delete_many({ 'vehicle': vehicle['_id'] })
 
-    res = mongodbClient['MilesmartMain']['Car'].delete_one({ '_id': id })
-    if res.deleted_count == 0: return { 'error': 'resource_not_found' }, 404
-    return {}
+    return vehicle
 
-@milemartServer.route('/vehicles/<int:id>', methods=['DELETE']) # Deprecated Route
-@milemartServer.route('/vehicles/<id>', methods=['DELETE'])
-@requiresAuthPrivilege(AUTH_PRIVILEGE_ADMIN)
-def vehicles_delete(id: int|str):
-    res = mongodbClient['MilesmartMain']['Car'].delete_one({ '_id': id })
-    if res.deleted_count == 0: return { 'error': 'resource_not_found' }, 404
-    return {}
+@milesmartServer.route('/vehicles/<int:id>', methods=['DELETE']) # Deprecated Route
+@milesmartServer.route('/vehicles/<id>', methods=['DELETE'])
+@requiresAuthPrivilege(AUTH_PRIVILEGE_COADMIN)
+def vehicles_delete(id: int|str, current_user = None):
+    vehicle = mainDatabase['Vehicle'].find_one_and_delete({ '_id': id })
+    if vehicle is None: return { 'error': 'resource_not_found' }, 404
+    return vehicle
 
-@milemartServer.route('/user/vehicles', methods=['POST'])
+@milesmartServer.route('/user/vehicles', methods=['POST'])
 @requiresAuthPrivilege(AUTH_PRIVILEGE_USER)
-def user_vehicle_post():
+def user_vehicle_post(current_user = None):
     required_args = ['condition', 'description', 'fuel', 'manufacturer', 'model', 'odometer', 'price', 'state', 'transmission', 'year']
     optional_args = ['cylinders', 'drive', 'paint_color', 'size', 'title_status', 'type', 'VIN']
-    uid = get_current_user_id()
+    uid = current_user['_id']
     body = request.json
 
     if 'image_urls' not in body: return { 'error': 'required_parameter_not_found: ', 'details': 'parameter: image_urls' }, 404
@@ -193,20 +192,18 @@ def user_vehicle_post():
             
         vehicle[arg] = body[arg]
 
-    mongodbClient['MilesmartMain']['Car'].insert_one(vehicle)
-
-    owner = mongodbClient['MilesmartMain']['User'].find_one({ '_id': uid })
-    vehicle['owner'] = owner
-
+    mainDatabase['Vehicle'].insert_one(vehicle)
+    
+    vehicle['owner'] = current_user
     return vehicle
 
-@milemartServer.route('/user/vehicles/<id>', methods=['PATCH'])
-@milemartServer.route('/user/vehicles/<int:id>', methods=['PATCH']) # Deprecated Route
+@milesmartServer.route('/user/vehicles/<id>', methods=['PATCH'])
+@milesmartServer.route('/user/vehicles/<int:id>', methods=['PATCH']) # Deprecated Route
 @requiresAuthPrivilege(AUTH_PRIVILEGE_USER)
-def user_vehicle_update(id: str|int):
+def user_vehicle_update(id: str|int, current_user=None):
     vehicle_args = ['condition', 'description', 'fuel', 'manufacturer', 'model', 'odometer', 'price', 'state', 'transmission', 'year', 'cylinders', 'drive', 'paint_color', 'size', 'title_status', 'type', 'VIN']
-    uid = get_current_user_id()
-    result = list(mongodbClient['MilesmartMain']['Car'].find({ '_id': id }, projection={ 'owner': 1 }))
+    uid = current_user['_id']
+    result = list(mainDatabase['Vehicle'].find({ '_id': id }, projection={ 'owner': 1 }))
     body = request.json
 
     if len(result) == 0 or uid != result[0]['owner']: return { 'error': 'resource_not_found: ' }, 404
@@ -224,10 +221,10 @@ def user_vehicle_update(id: str|int):
         if arg not in body: continue
         updates['$set'][arg] = body[arg]
 
-    mongodbClient['MilesmartMain']['Car'].update_one({ '_id': id }, updates)
+    mainDatabase['Vehicle'].update_one({ '_id': id }, updates)
 
-    vehicle = dict(mongodbClient['MilesmartMain']['Car'].find_one({ '_id': id }))
-    owner = dict(mongodbClient['MilesmartMain']['User'].find_one({ '_id': uid }))
+    vehicle = dict(mainDatabase['Vehicle'].find_one({ '_id': id }))
+    owner = dict(mainDatabase['User'].find_one({ '_id': uid }))
     vehicle['owner'] = owner
 
     return vehicle

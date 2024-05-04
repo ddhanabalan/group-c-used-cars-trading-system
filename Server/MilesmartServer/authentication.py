@@ -1,5 +1,6 @@
 import datetime
 from functools import wraps
+import math
 import os
 import time
 from typing import Any
@@ -8,7 +9,7 @@ from flask import abort, redirect, request, send_file, url_for, has_request_cont
 import google_auth_oauthlib
 import jwt
 import requests
-from . import generate_id, milemartServer, mongodbClient
+from . import generate_id, milesmartServer, mainDatabase
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 CLIENT_SECRETS_FILE = "Server/client_secret.json"
@@ -33,7 +34,7 @@ def find_primary_field(src: list[dict[str, Any]]) -> dict[str, Any]|None:
         if field['metadata']['primary']: return field
     return None
 
-@milemartServer.route('/client_code', methods=['GET'])
+@milesmartServer.route('/client_code', methods=['GET'])
 def client_code():
     if request.authorization == None: abort(401)
     if request.authorization.type != 'basic': abort(401)
@@ -41,30 +42,30 @@ def client_code():
     if request.authorization.password != 'password1': abort(401)
 
     id = generate_id()
-    mongodbClient['MilesmartMain']['ClientCodes'].insert_one({
+    mainDatabase['ClientCodes'].insert_one({
         'timestamp': datetime.datetime.now(datetime.UTC),
         'code': id
     })
 
     return { 'client_code': id }
 
-@milemartServer.route('/login', methods=['GET'])
+@milesmartServer.route('/login', methods=['GET'])
 def login():
     if 'client_code' not in request.args: abort(400)
     
     client_code = request.args['client_code']
-    client_code_query = list(mongodbClient['MilesmartMain']['ClientCodes'].find({
+    client_code_query = list(mainDatabase['ClientCodes'].find({
         'code': client_code
     }))
 
     if len(client_code_query) == 0: abort(401)
 
-    token_query = list(mongodbClient['MilesmartMain']['UserTokens'].find({
+    token_query = list(mainDatabase['UserTokens'].find({
         '_id': client_code
     }))
 
     if len(token_query) != 0: 
-        user_data_query = list(mongodbClient['MilesmartMain']['User'].find({
+        user_data_query = list(mainDatabase['User'].find({
             '_id': token_query[0]['uid']
         }))
         user_data = user_data_query[0]
@@ -76,22 +77,27 @@ def login():
     flow.redirect_uri = url_for('oauth2callback', _external=True)
 
     authorization_url, state = flow.authorization_url(
-      access_type='offline',
-      include_granted_scopes='true',
+      prompt='consent',
+      include_granted_scopes='false',
       state=client_code)
 
     return redirect(authorization_url)
     # return {}
 
-@milemartServer.route('/oauth2callback')
+@milesmartServer.route('/oauth2callback')
 def oauth2callback():
     if 'state' not in request.args: abort(400)
     if 'error' in request.args: abort(401)
     state = request.args['state']
+    scopes = []
+    for scope in request.args['scope'].split(' '):
+        if scope in SCOPES: scopes.append(scope)
+
+    print(scopes)
     
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
-        SCOPES,
+        scopes,
         state=state)
     flow.redirect_uri = url_for('oauth2callback', _external=True)
 
@@ -107,7 +113,7 @@ def oauth2callback():
     userinfo = userinfo_response.json()
     uid = generate_id(int(userinfo['id']))
 
-    user_query = list(mongodbClient['MilesmartMain']['User'].find({
+    user_query = list(mainDatabase['User'].find({
         '_id': uid
     }))
 
@@ -119,6 +125,8 @@ def oauth2callback():
         )
 
         profile = profile_response.json()
+
+        privilege = 1 if len(list(mainDatabase['User'].find({ 'privilege': 4 }))) != 0 else 4
         
         user_data = {
             '_id': uid,
@@ -129,20 +137,19 @@ def oauth2callback():
             # 'address': find_primary_field(profile['addresses']) if 'addresses' in profile else None,
             'gender': find_primary_field(profile['genders'])['value'] if 'genders' in profile else None,
             'phone': find_primary_field(profile['phoneNumbers'])['value'] if 'phoneNumbers' in profile else None,
-            'privilege': 1
+            'privilege': privilege
         }
 
-        mongodbClient['MilesmartMain']['User'].insert_one(user_data)
+        mainDatabase['User'].insert_one(user_data)
     else: user_data = user_query[0]
     
     print(user_data)
 
     token = jwt.encode({
-        'uid': user_data['_id'],
-        'privilege': user_data['privilege'], 
-    }, milemartServer.config['SECRET_KEY'])
+        'id': state,
+    }, milesmartServer.config['SECRET_KEY'])
 
-    mongodbClient['MilesmartMain']['UserTokens'].insert_one({
+    mainDatabase['AuthTokens'].insert_one({
         '_id': state,
         'uid': user_data['_id'],
         'timestamp': datetime.datetime.now(datetime.UTC),
@@ -151,24 +158,22 @@ def oauth2callback():
 
     return redirect(url_for('summary', user_name=user_data['name'], user_email=user_data['email'], user_dp=user_data['picture'], user_phone=user_data['phone'] if user_data['phone'] is not None else 'Phone Unavailable'))
 
-@milemartServer.route('/token')
+@milesmartServer.route('/token', methods=['GET'])
 def token():
     if 'client_code' not in request.args: abort(400)
 
     client_code = request.args['client_code']
 
-    token_query = list(mongodbClient['MilesmartMain']['UserTokens'].find({
+    token_query = list(mainDatabase['AuthTokens'].find({
         '_id': client_code
     }))
 
     if len(token_query) == 0: abort(401)
 
-    return {
-        'token': token_query[0]['token']
-    }
+    return token_query[0]
 
-@milemartServer.route('/summary')
-@milemartServer.route('/summary/<path:filename>')
+@milesmartServer.route('/summary')
+@milesmartServer.route('/summary/<path:filename>')
 def summary(filename:str|None = None):
     if filename is None: return send_file('../ui/index.html')
     else: return send_file(f'../ui/{filename}')
@@ -177,16 +182,46 @@ def requiresAuthPrivilege(privilege_required: int):
     def inner_func(func):
         @wraps(func)
         def wrapper_func(*args, **kwargs):
+            if privilege_required == 0: return func(*args, **kwargs)
             if request.authorization == None: abort(401)
             if request.authorization.type != "bearer": abort(401)
             if request.authorization.token == None: abort(401)
 
-            user_privilege = jwt.decode(request.authorization.token, milemartServer.config['SECRET_KEY'], algorithms=['HS256'])['privilege']
+            id = jwt.decode(request.authorization.token, milesmartServer.config['SECRET_KEY'], algorithms=['HS256'])['id']
+            token_details = mainDatabase['AuthTokens'].find_one({ '_id': id })
+            if token_details is None: abort(401)
+
+            user = mainDatabase['User'].find_one({ '_id': token_details['uid'] })
+            user_privilege = user['privilege']
             if user_privilege < privilege_required : abort(401)
+
+            kwargs['current_user'] = user
             return func(*args, **kwargs)
         
         return wrapper_func
     return inner_func
 
-def get_current_user_id() -> str:
-    return jwt.decode(request.authorization.token, milemartServer.config['SECRET_KEY'], algorithms=['HS256'])['uid']
+@milesmartServer.route('/user/tokens', methods=['GET'])
+@milesmartServer.route('/user/tokens/<id>', methods=['DELETE'])
+@requiresAuthPrivilege(AUTH_PRIVILEGE_USER)
+def tokens_search(id:str = None, current_user = None):
+    if id == None:
+        page_size = int(request.args["page_size"]) if 'page_size' in request.args else 30
+        skip = int(request.args["page"])*page_size if 'page' in request.args and id is None else 0
+        tokens = list (mainDatabase['AuthTokens'].find( { 'uid': current_user['_id'] }, limit = page_size, skip = skip ))
+
+        count_response = list(mainDatabase['AuthTokens'].aggregate([{ '$match': { 'uid': current_user['_id'] } }, { '$count': 'count' }]))
+        results_count = count_response[0]['count'] if len(count_response) > 0 else 0
+    
+        return {
+            'pages': math.ceil(results_count/page_size),
+            'count': results_count,
+            'results': tokens
+        }
+    
+    else:
+        tokens = list (mainDatabase['AuthTokens'].find( { 'uid': current_user['_id'], '_id': id }))
+        if len(tokens) == 0: return { 'error': 'resource_not_found' }, 404
+
+        mainDatabase['AuthTokens'].delete_one( { 'uid': current_user['_id'], '_id': id })
+        return tokens[0]

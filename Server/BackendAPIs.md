@@ -20,12 +20,16 @@ This article includes the details of all APIs that are planned to implement and 
 - `/user/files/<id>` `DELETE` [Delete a File](Docs/User/Files/DELETE.md) *(Ready To Use)*
 ## User Endpoints *(Arrives in Demo 2: Week 3)*
 
-- `/user/info` `GET` [Get Details of Authenticated User](Docs/GET.User.md)
-- `/user/info` `PATCH` [Update Details of Authenticated User](Docs/PATCH.User.md)
-- `/user/info` `DELETE` [Close Account of Authenticated User](Docs/DELETE.User.md)
-- `/users/<id>` `GET` [Get Details of a User](Docs/GET.User.md)
-- `/users/<id>` `PUT` [Update Access Details of a User](Docs/PATCH.User.md)
-- `/users/<id>` `DELETE` [Close Account of a User](Docs/DELETE.User.md)
+- `/user` `GET` [Get Details of Authenticated User](Docs/GET.User.md) *(Ready To Use)*
+- `/user` `PATCH` [Update Details of Authenticated User](Docs/PATCH.User.md) *(Ready To Use)*
+- `/user` `DELETE` [Close Account of Authenticated User](Docs/DELETE.User.md) *(Ready To Use)*
+- `/users` `GET` [Search for Users](Docs/GET.User.md) *(Ready To Use)*
+- `/users/<id>` `GET` [Get Detailes of a User](Docs/GET.User.md) *(Ready To Use)*
+- `/actions/users/<id>` `POST` [Apply Admin Actions on a User](Docs/PATCH.User.md) *(Ready To Use)*
+
+## Token Management APIs
+- `/user/tokens` `GET` [List my tokens](Docs/User/Tokens/GET.md) *(Ready To Use)*
+- `/user/tokens/<id>` `DELETE` [Revoke a token](Docs/User/Tokens/DELETE.md) *(Ready To Use)*
 
 ## Biding or Wishlisting Endpoints
 - `/bids` `POST` [Make a Biding on a Vehicle](Docs/POST.Bids.md)
