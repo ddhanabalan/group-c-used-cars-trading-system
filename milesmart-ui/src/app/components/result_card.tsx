@@ -25,7 +25,7 @@ export default function ResultCard( { vehicle, className }: {
     const router = useRouter()
 
     return (
-        <Card className={'w-64 min-h-72 overflow-clip '+className}>
+        <Card className={'w-min-64 min-h-72 overflow-clip '+className}>
             <div className='flex flex-col flex-1' onClick={() => { router.push(`/product?vid=${vehicle["_id"]}`) }}>
                 <div className='h-max bg-white'>
                 <Image alt="main_image" width={-1} height={-1} src={vehicle['image_urls'][0]} className="w-full h-48 overflow-clip object-cover hover:outline-2 hover:outline-black"/>
