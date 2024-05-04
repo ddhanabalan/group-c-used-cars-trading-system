@@ -1,4 +1,4 @@
-< [Home](../../BackendAPIs.md)
+< [Home](../../BackendAPIs.md#vehicle-endpoints)
 # Delete The Details of a Vehicle
 - Endpoint: `/vehicles/<id>` `PATCH`
 - Authentication Required as Co-Admin

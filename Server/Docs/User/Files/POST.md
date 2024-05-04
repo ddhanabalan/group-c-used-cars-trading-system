@@ -1,4 +1,4 @@
-< [Home](../../../BackendAPIs.md)
+< [Home](../../../BackendAPIs.md#file-storage-endpoints)
 # Upload Files
 - Endpoint: `/user/files` `POST`
 - Authentication Required as Normal User
@@ -7,17 +7,20 @@
 - `path: string` Filename/Path
 - `file: file` The File object
 ## Response Schemas
-- Response Code: 200
-    ```
-    {
+```
+Response Code: 200
+
+{
+    _id: string,
+    filename: string,
+    length: long,
+    uploadDate: string,
+    owner: owner: {
         _id: long,
-        path: string,
-        owner: owner: {
-            _id: long,
-            name: string,
-            phone: string,
-            email: string,
-            role: string
-        }
+        name: string,
+        phone: string,
+        email: string,
+        role: string
     }
-    ```
+}
+```

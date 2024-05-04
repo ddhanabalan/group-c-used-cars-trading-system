@@ -1,23 +1,28 @@
-< [Home](../../../BackendAPIs.md#vehicle-endpoints)
-# Get The Details of a Vehicle
-- Endpoint: `/user/vehicles/<id>` `GET`
+< [Home](../../../BackendAPIs.md#biding-or-wishlisting-endpoints)
+# List Wishlisted Vehicles of Authenticated User
+- Endpoint: `/user/wishlist` `GET`
 - Authentication Required as Normal User
-- Path Parameters:
-    - `id: long` Vehicle ID **(Required)**
+## Query Parameters:
+- `page: int` Page Number
+- `page_size: int` Page Size
 ## Response Schemas
-- Response code: 200 
-    ```
-    {
-        min_price: int,
-        max_price: int,
-        min_odo: int,
-        max_odo: int,
-        min_year: int,
-        max_year: int,
-        pages: int,
-        fuel_types: [string],
-        results: [
-            {
+```
+Response Code: 200
+
+
+{
+    pages: int
+    results: [
+        {
+            _id: string,
+            owner: {
+                _id: long,
+                name: string,
+                phone: string,
+                email: string,
+                role: string
+            },
+            vehicle: {
                 _id: long
                 condition: string  
                 cylinders: int|null, 
@@ -45,7 +50,7 @@
                 VIN: string|null,
                 year: int
             }
-        ]
-    }
-    ```
-    > If id not found response code will be 404
+        }
+    ]
+}
+```

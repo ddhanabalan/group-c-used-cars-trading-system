@@ -100,7 +100,7 @@ Authorization: Bearer {{token2}}
 GET http://localhost:5000/files/m~THEsAQ
 
 ### View a file metadata
-GET http://localhost:5000/user/files/m~Q08h9Z
+GET http://localhost:5000/user/files/m_YVMSfY
 Authorization: Bearer {{token2}}
 
 ### Delete a file
@@ -146,6 +146,7 @@ Authorization: Bearer {{token2}}
     "privilege": 2
 }
 
+
 ### Get my tokens
 GET http://localhost:5000/user/tokens
 Authorization: Bearer {{token2}}
@@ -169,7 +170,7 @@ GET http://localhost:5000/user/wishlist
 Authorization: Bearer {{token2}}
 
 ### View a specific wishlisted item
-GET http://localhost:5000/user/wishlist/m_ZMOCTg
+GET http://localhost:5000/user/wishlist/m_ZL5ie2
 Authorization: Bearer {{token2}}
 
 ### Remove a specific wishlisted item

@@ -1,13 +1,23 @@
-< [Home](../../BackendAPIs.md#vehicle-endpoints)
-# Get The Details of a Vehicle
-- Endpoint: `/vehicles/<id>` `GET`
-- No Authentication Required
-## Path Parameters:
-- `id: string` Vehicle ID **(Required)**
+< [Home](../../../BackendAPIs.md#biding-or-wishlisting-endpoints)
+# Delete A Wishlisted Item
+- Endpoint: `/user/wishlist/<id>` `DELETE`
+- Authentication Required as Normal User
+## Path Parameters
+- `id: string` The Wishlist Item ID (**Required**)
 ## Response Schemas
-- Response code: 200 
-    ```
-    {
+```
+Response Code: 200
+
+{
+    _id: string,
+    owner: {
+        _id: long,
+        name: string,
+        phone: string,
+        email: string,
+        role: string
+    },
+    vehicle: {
         _id: long
         condition: string  
         cylinders: int|null, 
@@ -35,5 +45,5 @@
         VIN: string|null,
         year: int
     }
-    ```
-    > If id not found response code will be 404
+}
+```

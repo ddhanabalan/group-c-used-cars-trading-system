@@ -1,4 +1,4 @@
-< [Home](../../BackendAPIs.md)
+< [Home](../../BackendAPIs.md#file-storage-endpoints)
 # Delete Files
 - Endpoint: `/files/<id>` `DELETE`
 - Authentication Required as Co-Admin

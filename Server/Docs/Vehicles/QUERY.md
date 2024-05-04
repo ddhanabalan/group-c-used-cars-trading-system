@@ -1,4 +1,4 @@
-< [Home](../../BackendAPIs.md)
+< [Home](../../BackendAPIs.md#vehicle-endpoints)
 # List Vehicles Globally based on filters
 - Endpoint: `/vehicles` `GET`
 - No Authentication Required
@@ -14,7 +14,7 @@
 - `page: int` Page Number
 - `page_size: int` Results Per Page
 - `uid: long` id of owner
-- `filters_bound: bool` Whether to calculate valid filters range
+- `filter_bounds: bool` Whether to calculate valid filters range
 ## Response Schemas
 - Response Code: 200
     ```
