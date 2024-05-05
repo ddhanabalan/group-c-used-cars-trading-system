@@ -11,4 +11,4 @@ RUN pip3 install -r requirements.txt
 
 EXPOSE 5000
 
-CMD [ "python3", "main.py" ]
+CMD [ "gunicorn", "-w", "4", "main:milesmartServer", "-b", "0.0.0.0:5000" ]
