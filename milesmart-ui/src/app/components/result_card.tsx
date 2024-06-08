@@ -33,9 +33,10 @@ export default function ResultCard( { vehicle, className }: {
                 <div className='flex dark:text-white min-h-24 px-3 py-2 gap-2 flex-none'>
                     <div className='flex flex-col flex-1'>
                         <div className='font-bold text-lg'>
-                            {vehicle['year']} {vehicle['manufacturer']} {vehicle['model']}
+                            {vehicle['manufacturer']} {vehicle['model']}
                         </div>
                         <div className="flex gap-1 mt-1 flex-wrap">
+                            <Badge className='text-xs' text={vehicle['year'].toString()} />
                             <Badge className='text-xs' text={vehicle['odometer']+" KM"} />
                             <Badge className='text-xs' text={vehicle['fuel']} />
                             <Badge className='text-xs' text={vehicle['transmission']} />

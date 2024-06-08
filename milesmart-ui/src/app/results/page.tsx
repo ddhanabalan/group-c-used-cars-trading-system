@@ -5,8 +5,11 @@ import { useCallback, useEffect, useState } from "react";
 import ResultCard from '../components/result_card';
 import RangeSlider from '../components/range_slider';
 import SearchIcon from '../components/icons/search_icon';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Results() {
+    const router = useRouter()
+    const search_params = useSearchParams()
     const [objs, setObjs] = useState(Array())
     // const [state_open, set_state_open] = useState(false)
     const [pr_max, set_pr_max] = useState(10)
@@ -29,7 +32,7 @@ export default function Results() {
 
     useEffect(() => {
       const fetchData = async () => {
-        const response = await fetch('http://localhost:5000/vehicles')
+        const response = await fetch(`http://localhost:5000/vehicles?${search_params.toString()}`)
         if (response.status == 200) {
           const result = await response.json()
           setObjs(result['results'])
@@ -39,14 +42,17 @@ export default function Results() {
           set_odo_range_min(Math.floor(result['min_odometer']/1000))
           set_year_range_max(Math.ceil(result['max_year']))
           set_year_range_min(Math.floor(result['min_year']))
-          set_pr_max(Math.ceil(result['max_price']/1000))
-          set_pr_min(Math.floor(result['min_price']/1000))
-          set_odo_max(Math.ceil(result['max_odometer']/1000))
-          set_odo_min(Math.floor(result['min_odometer']/1000))
-          set_year_max(Math.ceil(result['max_year']))
-          set_year_min(Math.floor(result['min_year']))
+          set_pr_max(Math.ceil((search_params.has("price_max")? Number.parseInt(search_params.get("price_max") ?? ""): result['max_price'])/1000))
+          set_pr_min(Math.floor((search_params.has("price_min")? Number.parseInt(search_params.get("price_min") ?? ""): result['min_price'])/1000))
+          set_odo_max(Math.ceil((search_params.has("odo_max")? Number.parseInt(search_params.get("odo_max") ?? ""): result['max_odometer'])/1000))
+          set_odo_min(Math.floor((search_params.has("odo_min")? Number.parseInt(search_params.get("odo_min") ?? ""): result['min_odometer'])/1000))
+          set_year_max(search_params.has("year_max")? Number.parseInt(search_params.get("year_max") ?? ""): Math.ceil(result['max_year']))
+          set_year_min(search_params.has("year_min")? Number.parseInt(search_params.get("year_min") ?? ""): Math.floor(result['min_year']))
           set_fuel_type_range(result['fuel_types'])
+          set_fuel_type(search_params.has("fuel_types")? search_params.get("fuel_types")?.split(",") ?? Array(): Array())
           set_pages(result['pages'])
+          set_page(search_params.has("page")? Number.parseInt(search_params.get("page")??"0")+1: 1)
+          set_search(search_params.has("sk")? search_params.get("sk")?? "": "")
         }
       }
   
@@ -63,17 +69,18 @@ export default function Results() {
 
     const fetchData = async (_page:number = -1) => {
       if (_page != -1) set_page(_page)
-      var url = `http://localhost:5000/vehicles?page=${_page == -1? page-1: _page-1}`
+      var query = `page=${_page == -1? page-1: _page-1}`
+      var url = `http://localhost:5000/vehicles`
       console.log(search.length > 0)
-      if (search.length > 0) url = `${url}&sk=${search}`
-      if (pr_range_max != undefined && pr_max < pr_range_max) url = `${url}&price_max=${pr_max*1000}`
-      if (pr_range_min != undefined && pr_min > pr_range_min) url = `${url}&price_min=${pr_min*1000}`
-      if (odo_range_max != undefined && odo_max < odo_range_max) url = `${url}&odo_max=${odo_max*1000}`
-      if (odo_range_min != undefined && odo_min > odo_range_min) url = `${url}&odo_min=${odo_min*1000}`
-      if (year_range_max != undefined && year_max < year_range_max) url = `${url}&year_max=${year_max}`
-      if (year_range_min != undefined && year_min > year_range_min) url = `${url}&year_min=${year_min}`
-      if (fuel_type.length > 0) url = `${url}&fuel_types=${fuel_type.join(',')}`
-      const response = await fetch(url)
+      if (search.length > 0) query = `${query}&sk=${search}`
+      if (pr_range_max != undefined && pr_max < pr_range_max) query = `${query}&price_max=${pr_max*1000}`
+      if (pr_range_min != undefined && pr_min > pr_range_min) query = `${query}&price_min=${pr_min*1000}`
+      if (odo_range_max != undefined && odo_max < odo_range_max) query = `${query}&odo_max=${odo_max*1000}`
+      if (odo_range_min != undefined && odo_min > odo_range_min) query = `${query}&odo_min=${odo_min*1000}`
+      if (year_range_max != undefined && year_max < year_range_max) query = `${query}&year_max=${year_max}`
+      if (year_range_min != undefined && year_min > year_range_min) query = `${query}&year_min=${year_min}`
+      if (fuel_type.length > 0) query = `${query}&fuel_types=${fuel_type.join(',')}`
+      const response = await fetch(`${url}?${query}`)
       if (response.status == 200) {
         const result = await response.json()
         setObjs(result['results'])
@@ -103,6 +110,8 @@ export default function Results() {
         set_fuel_type(fuel_type.filter((v) => fuel_type_range.includes(v)))
         set_pages(result['pages'])
       }
+
+      router.push(`/results?${query}`)
     }
     
     return (
