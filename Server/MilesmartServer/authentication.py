@@ -34,17 +34,28 @@ def find_primary_field(src: list[dict[str, Any]]) -> dict[str, Any]|None:
         if field['metadata']['primary']: return field
     return None
 
-@milesmartServer.route('/client_code', methods=['GET'])
+@milesmartServer.route('/client_code', methods=['POST'])
 def client_code():
     if request.authorization == None: abort(401)
     if request.authorization.type != 'basic': abort(401)
     if request.authorization.username != 'clientweb1': abort(401)
     if request.authorization.password != 'password1': abort(401)
+    if not request.is_json: abort(400)
+
+
+    if "client_type" not in request.json: abort(400)
+    if request.json["client_type"] not in ["web", "device"]: abort(400)
+    if request.json["client_type"] == "web":
+        if "redirect_uri" not in request.json: abort(400)
+
+    for arg in request.json:
+        if arg not in ["client_type", "redirect_uri"]: abort(400)
 
     id = generate_id()
     mainDatabase['ClientCodes'].insert_one({
         'timestamp': datetime.datetime.now(datetime.UTC),
-        'code': id
+        'code': id,
+        **request.json
     })
 
     return { 'client_code': id }
@@ -156,7 +167,13 @@ def oauth2callback():
         'token': token
     })
 
-    return redirect(url_for('summary', user_name=user_data['name'], user_email=user_data['email'], user_dp=user_data['picture'], user_phone=user_data['phone'] if user_data['phone'] is not None else 'Phone Unavailable'))
+    client_data = dict(mainDatabase['ClientCodes'].find_one({
+        'code': state
+    }))
+
+    if client_data["client_type"] == "device":
+        return redirect(url_for('summary', user_name=user_data['name'], user_email=user_data['email'], user_dp=user_data['picture'], user_phone=user_data['phone'] if user_data['phone'] is not None else 'Phone Unavailable'))
+    elif client_data["client_type"] == "web": return redirect(client_data['redirect_uri'])
 
 @milesmartServer.route('/token', methods=['GET'])
 def token():
