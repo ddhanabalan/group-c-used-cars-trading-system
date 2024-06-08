@@ -1,23 +1,43 @@
-import React from 'react'
+"use client"
+
+import React, { useState } from 'react'
 import Link from 'next/link'
 
 
-const BuySellBar = () => {
+const BuySellBar = ({selection, on_selection_changed = undefined}: {selection: number, on_selection_changed?: any|undefined}) => {
   return (
     <div className='flex flex-row items-center justify-start gap-2 mx-10 mt-10 mb-5'>
-        <div className='content-center w-32 h-10 text-center border-2 border-gray-200 hover:text-white rounded-xl hover:bg-black selection:border-black'>
-            <Link href=''>Buy</Link>
-        </div>
-        <div className='content-center w-32 h-10 text-center border-2 border-gray-200 rounded-xl hover:text-white hover:bg-black selection:border-black'>
-            <Link href='/Sellcar'>Sell</Link>
-        </div>
-        <div className='content-center w-32 h-10 text-center border-2 border-gray-200 rounded-xl hover:text-white hover:bg-black selection:border-black'>
-            <Link href='/Sellcar'>Wishlist</Link>
-        </div>
-        <div className='content-center w-32 h-10 text-center border-2 border-gray-200 rounded-xl hover:text-white hover:bg-black selection:border-black'>
-            <Link href='/Sellcar'>Bids</Link>
-        </div>
+        {/* Buy button */}
+        <button className={`
+        w-32 h-10 border-2 rounded-xl active:bg-black active:text-white
+        ${selection == 0? "hover:bg-gray-700 bg-black text-white": "hover:bg-gray-200 bg-white text-black"}
+        `} onClick={() => {
+            on_selection_changed(0)
+        }}>Buy</button>
 
+        {/* Sell button */}
+        <button className={`
+        w-32 h-10 border-2 rounded-xl active:bg-black active:text-white
+        ${selection == 1? "hover:bg-gray-700 bg-black text-white": "hover:bg-gray-200 bg-white text-black"}
+        `} onClick={() => {
+            on_selection_changed(1)
+        }}>Sell</button>
+
+        {/* Wishlist button */}
+        <button className={`
+        w-32 h-10 border-2 rounded-xl active:bg-black active:text-white
+        ${selection == 2? "hover:bg-gray-700 bg-black text-white": "hover:bg-gray-200 bg-white text-black"}
+        `} onClick={() => {
+            on_selection_changed(2)
+        }}>Wishlist</button>
+
+        {/* Bids */}
+        <button className={`
+        w-32 h-10 border-2 rounded-xl active:bg-black active:text-white
+        ${selection == 4? "hover:bg-gray-700 bg-black text-white": "hover:bg-gray-200 bg-white text-black"}
+        `} onClick={() => {
+            on_selection_changed(4)
+        }}>Bids</button>
         
         
     </div>

@@ -3,7 +3,7 @@ import React from 'react'
 
 const SideBar = () => {
   return (
-    <div className="flex flex-col items-center mx-6 mt-16 text-center bg-white rounded-3xl basis-1/4 h-3/4">
+    <div className="flex flex-col items-center mx-6  text-center bg-white rounded-3xl basis-1/4 h-3/4">
         <div className='flex flex-col items-center justify-center'>
       <div className="justify-center mt-8 mb-3 overflow-hidden rounded-full w-36 h-36">
         <img src="https://media.istockphoto.com/id/1316420668/vector/user-icon-human-person-symbol-social-profile-icon-avatar-login-sign-web-user-symbol.jpg?s=612x612&w=0&k=20&c=AhqW2ssX8EeI2IYFm6-ASQ7rfeBWfrFFV4E87SaFhJE=" alt="profile image"
