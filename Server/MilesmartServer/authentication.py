@@ -12,7 +12,7 @@ import requests
 from . import generate_id, milesmartServer, mainDatabase
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-CLIENT_SECRETS_FILE = "Server/client_secret.json"
+CLIENT_SECRETS_FILE = "./client_secret.json"
 SCOPES = [
     'openid', 
     'https://www.googleapis.com/auth/userinfo.profile', 

@@ -15,7 +15,7 @@ Content-Type: application/json
 GET http://localhost:5000/login?client_code=nDxWFlXi HTTP/1.1
 
 ### Fetch the Token When Authentication is sucessfull
-GET http://localhost:5000/token?client_code=m_YURpkk HTTP/1.1
+GET http://localhost:5000/token?client_code=nDxWFlXi HTTP/1.1
 
 
 
