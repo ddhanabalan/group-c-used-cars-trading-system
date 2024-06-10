@@ -29,7 +29,7 @@ export default function Results() {
     const [pages, set_pages] = useState(1)
     const [page, set_page] = useState(1)
     const [search, set_search] = useState("");
-    const [token, set_token] = useState<string|null>(localStorage.getItem("token"))
+    const [token, set_token] = useState<string|null>()
 
     useEffect(() => {
       const fetchData = async () => {
@@ -58,6 +58,8 @@ export default function Results() {
       }
   
       fetchData().catch((e) => console.log(e))
+
+      set_token(localStorage.getItem("token"))
 
       if (search_params.has("callback") && search_params.get("callback") == "true") {
         const code = sessionStorage.getItem("client_code")
