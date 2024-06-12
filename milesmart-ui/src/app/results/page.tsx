@@ -1,17 +1,16 @@
 'use client'
 
 import './styles.css'
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ResultCard from '../components/result_card';
 import RangeSlider from '../components/range_slider';
-import SearchIcon from '../components/icons/search_icon';
 import { useRouter, useSearchParams } from 'next/navigation';
+import HeaderBar from '../components/header_bar';
 
 export default function Results() {
     const router = useRouter()
     const search_params = useSearchParams()
     const [objs, setObjs] = useState(Array())
-    // const [state_open, set_state_open] = useState(false)
     const [pr_max, set_pr_max] = useState(10)
     const [pr_min, set_pr_min] = useState(0)
     const [odo_max, set_odo_max] = useState(10)
@@ -29,12 +28,13 @@ export default function Results() {
     const [pages, set_pages] = useState(1)
     const [page, set_page] = useState(1)
     const [search, set_search] = useState("");
-    const [token, set_token] = useState<string|null>()
 
     useEffect(() => {
       const fetchData = async () => {
+        set_page(search_params.has("page")? Number.parseInt(search_params.get("page")??"0")+1: 1)
+        set_search(search_params.has("sk")? search_params.get("sk")?? "": "") 
         const response = await fetch(`http://localhost:5000/vehicles?${search_params.toString()}`)
-        if (response.status == 200) {
+        if (response.ok) {
           const result = await response.json()
           setObjs(result['results'])
           set_pr_range_max(Math.ceil(result['max_price']/1000))
@@ -43,43 +43,24 @@ export default function Results() {
           set_odo_range_min(Math.floor(result['min_odometer']/1000))
           set_year_range_max(Math.ceil(result['max_year']))
           set_year_range_min(Math.floor(result['min_year']))
+          set_fuel_type_range(result['fuel_types'])
           set_pr_max(Math.ceil((search_params.has("price_max")? Number.parseInt(search_params.get("price_max") ?? ""): result['max_price'])/1000))
           set_pr_min(Math.floor((search_params.has("price_min")? Number.parseInt(search_params.get("price_min") ?? ""): result['min_price'])/1000))
           set_odo_max(Math.ceil((search_params.has("odo_max")? Number.parseInt(search_params.get("odo_max") ?? ""): result['max_odometer'])/1000))
           set_odo_min(Math.floor((search_params.has("odo_min")? Number.parseInt(search_params.get("odo_min") ?? ""): result['min_odometer'])/1000))
           set_year_max(search_params.has("year_max")? Number.parseInt(search_params.get("year_max") ?? ""): Math.ceil(result['max_year']))
           set_year_min(search_params.has("year_min")? Number.parseInt(search_params.get("year_min") ?? ""): Math.floor(result['min_year']))
-          set_fuel_type_range(result['fuel_types'])
           set_fuel_type(search_params.has("fuel_types")? search_params.get("fuel_types")?.split(",") ?? Array(): Array())
           set_pages(result['pages'])
-          set_page(search_params.has("page")? Number.parseInt(search_params.get("page")??"0")+1: 1)
-          set_search(search_params.has("sk")? search_params.get("sk")?? "": "")
         }
       }
   
       fetchData().catch((e) => console.log(e))
-
-      set_token(localStorage.getItem("token"))
-
-      if (search_params.has("callback") && search_params.get("callback") == "true") {
-        const code = sessionStorage.getItem("client_code")
-        if (code != null) {
-          sessionStorage.removeItem("client_code")
-          fetch(`http://localhost:5000/token?client_code=${code}`).then((resp) => {
-            if (resp.ok) resp.json().then((resp) => {
-              set_token(resp['token'])
-              localStorage.setItem("token", resp['token'])
-            })
-          })
-        }
-      }
-    }, [])
+    }, [search_params])
 
     const fetchData = async (_page:number = -1) => {
-      if (_page != -1) set_page(_page)
+      // if (_page != -1) set_page(_page)
       var query = `page=${_page == -1? page-1: _page-1}`
-      var url = `http://localhost:5000/vehicles`
-      console.log(search.length > 0)
       if (search.length > 0) query = `${query}&sk=${search}`
       if (pr_range_max != undefined && pr_max < pr_range_max) query = `${query}&price_max=${pr_max*1000}`
       if (pr_range_min != undefined && pr_min > pr_range_min) query = `${query}&price_min=${pr_min*1000}`
@@ -88,106 +69,15 @@ export default function Results() {
       if (year_range_max != undefined && year_max < year_range_max) query = `${query}&year_max=${year_max}`
       if (year_range_min != undefined && year_min > year_range_min) query = `${query}&year_min=${year_min}`
       if (fuel_type.length > 0) query = `${query}&fuel_types=${fuel_type.join(',')}`
-      const response = await fetch(`${url}?${query}`)
-      if (response.status == 200) {
-        const result = await response.json()
-        setObjs(result['results'])
-        var c_pr_max_range = Math.ceil(result['max_price']/1000)
-        var c_pr_min_range = Math.floor(result['min_price']/1000)
-        var c_odo_max_range = Math.ceil(result['max_odometer']/1000)
-        var c_odo_min_range = Math.floor(result['min_odometer']/1000)
-        var c_year_max_range = Math.ceil(result['max_year'])
-        var c_year_min_range = Math.floor(result['min_year'])
-        set_pr_range_max(c_pr_max_range)
-        set_pr_range_min(c_pr_min_range)
-        set_odo_range_max(c_odo_max_range)
-        set_odo_range_min(c_odo_min_range)
-        set_year_range_max(c_year_max_range)
-        set_year_range_min(c_year_min_range)
-        set_fuel_type_range(result['fuel_types'])
-        set_pr_max((pr_range_max != undefined && pr_max < pr_range_max)? Math.max(Math.min(pr_max, c_pr_max_range), c_pr_min_range+1): c_pr_max_range)
-        set_pr_min((pr_range_min != undefined && pr_min > pr_range_min)? Math.max(Math.min(pr_min, c_pr_max_range-1), c_pr_min_range): c_pr_min_range)
-        set_odo_max((odo_range_max != undefined && odo_max < odo_range_max)? Math.max(Math.min(odo_max, c_odo_max_range), c_odo_min_range+1): c_odo_max_range)
-        set_odo_min((odo_range_min != undefined && odo_min > odo_range_min)? Math.max(Math.min(odo_min, c_odo_max_range-1), c_odo_min_range): c_odo_min_range)
-        set_year_max((year_range_max != undefined && year_max < year_range_max)? Math.max(Math.min(year_max, c_year_max_range), c_year_min_range+1): c_year_max_range)
-        set_year_min((year_range_min != undefined && year_min > year_range_min)? Math.max(Math.min(year_min, c_year_max_range-1), c_year_min_range): c_year_min_range)
-        // set_odo_max((odo_range_max != undefined && odo_max < odo_range_max)? Math.min(odo_max, c_odo_max_range): c_odo_max_range)
-        // set_odo_min((odo_range_min != undefined && odo_min > odo_range_min)? Math.max(odo_min, c_odo_min_range): c_odo_min_range)
-        set_year_max((year_range_max != undefined && year_max < year_range_max)? Math.min(year_max, c_year_max_range): c_year_max_range)
-        set_year_min((year_range_min != undefined && year_min > year_range_min)? Math.max(year_min, c_year_min_range): c_year_min_range)
-        set_fuel_type(fuel_type.filter((v) => fuel_type_range.includes(v)))
-        set_pages(result['pages'])
-      }
 
-      router.replace(`/results?${query}`)
+      const sk = search_params.has("sk")? search_params.get("sk"): ""
+      if (sk == search && search_params.size > 0) router.replace(`/results?${query}`)
+      else router.push(`/results?${query}`)
     }
     
     return (
         <main className="flex flex-col min-h-screen bg-slate-100 dark:bg-gray-950 dark:text-white">
-          <div className="flex flex-none flex-col h-14 px-4 sticky top-0 backdrop-blur-md z-10 bg-white/80 shadow dark:bg-gray-900/70">
-            <div className="flex items-center gap-3 h-full">
-              <div className="pr-2 py-1 text-lg font-bold dark:text-white ">
-                milesmart
-              </div>
-
-              <div className="grow flex justify-center">
-              <input placeholder="Search" className="dark:bg-gray-800 bg-gray-200 flex-1 max-w-[480px] w-full rounded-md px-2 py-1 duration-150 placeholder:text-gray-500 placeholder:text-center text-center" style={{outline: "none"}} value={search} onChange={(e) => {set_search(e.target.value)}} onKeyDownCapture={(e) => {
-                  if (e.key == 'Enter') {
-                    // set_state_open(false)
-                    fetchData().catch((e) => console.log(e))
-                  }
-                }}/>
-              </div>
-
-              <div className="flex gap-1">
-                <button className="
-                  px-4 py-1 duration-150 rounded-md border
-                text-black dark:text-white 
-                border-black dark:border-gray-400 
-                hover:bg-gray-100 dark:hover:bg-gray-800 
-                active:bg-gray-200 dark:active:bg-gray-700" onClick={ () => {}
-                //   make_notification('Feature Unavailable', 'The Buy feature is under development. Hope the next demo will include that')
-                }>Buy</button>
-
-                <button className="
-                  px-4 py-1 duration-150 rounded-md border
-                text-black dark:text-white 
-                border-black dark:border-gray-400 
-                hover:bg-gray-100 dark:hover:bg-gray-800 
-                active:bg-gray-200 dark:active:bg-gray-700"onClick={ () => {}
-                //   make_notification('Feature Unavailable', 'The Sell feature is under development. Hope the next demo will include that')
-                }>Sell</button>
-
-                <button className={`
-                  px-4 py-1 duration-150 rounded-md 
-                text-white  
-                bg-black dark:bg-white/20
-                hover:bg-gray-800 dark:hover:bg-white/25
-                active:bg-gray-700 dark:active:bg-white/30 `+(token == null? "": "hidden")}
-                onClick={() => {
-                  const splits = window.location.href.split("?", 2)
-                  fetch("http://localhost:5000/client_code", {
-                    method: "POST",
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Basic ${btoa('clientweb1:password1')}`,
-                    },
-                    body: JSON.stringify({
-                      "client_type": "web",
-                      "redirect_uri": `${splits[0]}?callback=true${splits.length > 1? "&"+splits[1]: "" }`
-                    })
-                  }).then((resp) => {
-                    if (resp.ok) resp.json().then((resp) => {
-                      const client_code = resp["client_code"]
-                      console.log(client_code)
-                      sessionStorage.setItem("client_code", client_code)
-                      router.push(`http://localhost:5000/login?client_code=${client_code}`);
-                    }).catch((reson) => console.log(reson));
-                  }).catch((reson) => console.log(reson));
-                }}>Login</button>
-              </div>
-            </div>
-          </div>
+          <HeaderBar search={search} on_search_changed={(sk) => set_search(sk)} on_search={ () => fetchData() }/>
 
           <div className='flex flex-1 flex-col sm:flex-row h-max py-6'>
             <div className='flex flex-col flex-none sm:h-[77vh] sm:top-20 sm:items-center sm:sticky'>
@@ -282,7 +172,7 @@ export default function Results() {
               </div>
             </div>
               
-            <div className='flex flex-1 flex-col gap-8 p-8 m-4 sm:my-0 sm:mr-0 bg-white dark:bg-gray-900 rounded-2xl sm:rounded-r-none'>
+            <div className='flex flex-1 justify-between flex-col gap-8 p-8 m-4 sm:my-0 sm:mr-0 bg-white dark:bg-gray-900 rounded-2xl sm:rounded-r-none'>
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 container place-self-center gap-4'>
                 {objs.map((vehicle:any, index:number) => {
                     return (<ResultCard vehicle={vehicle} key={index}/>)
