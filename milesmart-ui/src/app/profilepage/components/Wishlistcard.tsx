@@ -41,6 +41,11 @@ const wishlistcard = () => {
                     <p>Manual</p>
                     <p>2nd Owner</p>
                 </div>
+                <CustomButton
+                    title='Remove'
+                    btnType='button'
+                    containerStyles='text-white rounded-xl bg-black min-w-[130px]'
+                />
             </div>
             <div className='col-span-1 mr-10 justify-self-end'>
                 <img src="/brand1.png" alt="brand" className='w-32 h-32'/>

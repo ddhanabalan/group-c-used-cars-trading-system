@@ -6,7 +6,7 @@ const Footer = () => (
   <footer className='flex flex-col mt-5 border-t bg-[#F5F5F5] border-gray-100 text-black-100'>
     <div className='flex flex-wrap justify-between gap-5 px-6 py-10 max-md:flex-col sm:px-16'>
       <div className='flex flex-col items-start justify-start gap-6'>
-        <Image src='/logowhite.svg' alt='logo' width={118} height={18} className='object-contain' />
+        <Image src='/milesmartblack.png' alt='logo' width={118} height={18} className='object-contain' />
         <p className='text-base text-gray-700'>
           Milesmart 2024 <br />
           All Rights Reserved &copy;
