@@ -94,7 +94,7 @@ export default function HeaderBar( {
                 })
             }
         }
-    }, [])
+    }, []) 
 
     useEffect(() => set_search_key(search ?? ""), [search])
 
@@ -130,7 +130,7 @@ export default function HeaderBar( {
                 </div>
 
                 <div className="flex gap-1">
-                    <button hidden={ !buy_enabled ?? is_result_page } className={`${button_dimensions} ${secondary_button_color_scheme}`} onClick={ () => on_buy_clicked?.() ?? router.push(`results`)}>Buy</button>
+                    <button hidden={ !(buy_enabled ?? !is_result_page) } className={`${button_dimensions} ${secondary_button_color_scheme}`} onClick={ () => on_buy_clicked?.() ?? router.push(`results`)}>Buy</button>
 
                     <button hidden={ !sell_enabled } className={`${button_dimensions} ${secondary_button_color_scheme}`} onClick={ () => on_sell_clicked?.() ?? (token == undefined? perform_login(): router.push(`sell`))}>Sell</button>
 
