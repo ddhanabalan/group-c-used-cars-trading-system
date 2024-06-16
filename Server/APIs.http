@@ -26,7 +26,8 @@ GET http://localhost:5000/vehicles?page=0 HTTP/1.1
 GET http://localhost:5000/vehicles?page=0&price_min=3000&price_max=5000&odo_min=90000&odo_max=100000 HTTP/1.1
 
 ### Fetch the details of a Vehicle with id
-GET http://localhost:5000/vehicles/m823qYKO HTTP/1.1
+GET http://localhost:5000/vehicles HTTP/1.1
+Authorization: Bearer {{token2}}
 
 ### Search for my vehicles 
 GET http://localhost:5000/user/vehicles?filter_bounds=False HTTP/1.1
@@ -156,7 +157,7 @@ Authorization: Bearer {{token2}}
 
 ### Get my tokens
 GET http://localhost:5000/user/tokens
-Authorization: Bearer {{token2}}
+Authorization: Bearer {{token1}}
 
 ### Delete my tokens
 DELETE http://localhost:5000/user/tokens/m~RTIURC

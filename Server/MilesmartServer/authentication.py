@@ -195,22 +195,28 @@ def summary(filename:str|None = None):
     if filename is None: return send_file('../ui/index.html')
     else: return send_file(f'../ui/{filename}')
 
-def requiresAuthPrivilege(privilege_required: int):
+def requiresAuthPrivilege(requested_privilege: int):
     def inner_func(func):
         @wraps(func)
         def wrapper_func(*args, **kwargs):
-            if privilege_required == 0: return func(*args, **kwargs)
-            if request.authorization == None: abort(401)
-            if request.authorization.type != "bearer": abort(401)
-            if request.authorization.token == None: abort(401)
+            authorization = request.authorization
+            token_available = authorization != None and authorization.type == "bearer" and authorization.token != None
+            
+            if not token_available:
+                if requested_privilege > 0: return { "error": "UNAUTHORIZED", "message": "Request must be done on behalf of a user. No valid token found" }, 401
+                else: return func(*args, **kwargs)
 
-            id = jwt.decode(request.authorization.token, milesmartServer.config['SECRET_KEY'], algorithms=['HS256'])['id']
+            try: id = jwt.decode(request.authorization.token, milesmartServer.config['SECRET_KEY'], algorithms=['HS256'])['id']
+            except: return { "error": "BAD_TOKEN", "message": "Invalid token" }, 400
+            
             token_details = mainDatabase['AuthTokens'].find_one({ '_id': id })
-            if token_details is None: abort(401)
+            if token_details is None:
+                if requested_privilege > 0: return { "error": "UNAUTHORIZED", "message": "Token is invalid, may be revoked" }, 401
+                else: return func(*args, **kwargs)
 
             user = mainDatabase['User'].find_one({ '_id': token_details['uid'] })
             user_privilege = user['privilege']
-            if user_privilege < privilege_required : abort(401)
+            if user_privilege < requested_privilege : return { "error": "UNDER_PRIVILEGED", "message": "Permission denied for this request. Requires some privileges" }, 401
 
             kwargs['current_user'] = user
             return func(*args, **kwargs)
@@ -242,3 +248,8 @@ def tokens_search(id:str = None, current_user = None):
 
         mainDatabase['AuthTokens'].delete_one( { 'uid': current_user['_id'], '_id': id })
         return tokens[0]
+
+@milesmartServer.route('/user/authorize', methods=['GET'])
+@requiresAuthPrivilege(AUTH_PRIVILEGE_NONE)
+def token_validate(current_user = None):
+    pass

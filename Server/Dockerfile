@@ -1,6 +1,6 @@
 FROM python:alpine3.19
 
-WORKDIR /
+WORKDIR /Server
 
 COPY MilesmartServer MilesmartServer
 COPY ui ui

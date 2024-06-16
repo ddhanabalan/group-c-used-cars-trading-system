@@ -2,10 +2,10 @@ import math
 from random import Random
 import time
 from typing import Any
-from flask import Response, abort, request
+from flask import Response, abort, redirect, request
 from pymongo.collection import Collection
 
-from .authentication import AUTH_PRIVILEGE_COADMIN, AUTH_PRIVILEGE_USER, requiresAuthPrivilege
+from .authentication import AUTH_PRIVILEGE_COADMIN, AUTH_PRIVILEGE_NONE, AUTH_PRIVILEGE_USER, requiresAuthPrivilege
 from . import generate_id, mainDatabase, milesmartServer
 
 def make_range_filter(dest: dict[str, int], src: dict[str, str], src_key_name: str, dest_key_name: str):
@@ -44,7 +44,8 @@ def my_vehicles(current_user = None):
 @milesmartServer.route('/vehicles', methods=['GET'])
 @milesmartServer.route('/vehicles/<int:id>', methods=['GET']) # Deprecated Route
 @milesmartServer.route('/vehicles/<id>', methods=['GET'])
-def vehicles(id: int|str|None = None, uid: str|None = None):
+@requiresAuthPrivilege(AUTH_PRIVILEGE_NONE)
+def vehicles(id: int|str|None = None, uid: str|None = None, current_user: dict = None):
     page_size = int(request.args["page_size"]) if 'page_size' in request.args else 30
     skip = int(request.args["page"])*page_size if 'page' in request.args and id is None else 0
 
@@ -68,11 +69,9 @@ def vehicles(id: int|str|None = None, uid: str|None = None):
         if 'fuel_types' in request.args:
             fuel_filter['fuel'] = { '$in': request.args['fuel_types'].split(',') }
         
-        if uid is None and 'uid' in request.args:
-            uid = int(request.args['uid'])
-
         if uid is not None: owner_filter['owner'] = uid
-
+        elif 'uid' in request.args: owner_filter['owner'] = request.args['uid']
+                
     # images = list[str]()
     # for i in range(1, 6):
     #     images.append(f'car{i}.jpg')
@@ -90,7 +89,7 @@ def vehicles(id: int|str|None = None, uid: str|None = None):
         } if id is None else { '_id': id }
     }
 
-    lookup = {
+    lookup_owner = {
         '$lookup': {
             'from': 'User', 
             'localField': 'owner', 
@@ -99,9 +98,22 @@ def vehicles(id: int|str|None = None, uid: str|None = None):
         }
     }
 
-    unwind = { '$unwind': { 'path': '$owner' } }
+    unwind_owner = { '$unwind': { 'path': '$owner' } }
 
-    result = list(mainDatabase['Vehicle'].aggregate([match, lookup, unwind, { '$skip': skip }, { '$limit': page_size }]))
+    wishlist_taging = []
+    if current_user is not None:
+        wishlist_taging.append({
+            '$lookup': {
+                'from': 'Wishlist', 
+                'localField': '_id', 
+                'foreignField': 'vehicle', 
+                'as': 'wishlist_id',
+                'pipeline': [ { '$match': { 'owner': current_user['_id'] } } ]
+            }
+        })
+        wishlist_taging.append({ '$unwind': { 'path': '$wishlist_id' } })
+
+    result = list(mainDatabase['Vehicle'].aggregate([match, lookup_owner, unwind_owner, *wishlist_taging, { '$skip': skip }, { '$limit': page_size }]))
 
     # for vehicle in result:
     #     image_urls = list[str]()
@@ -128,18 +140,6 @@ def vehicles(id: int|str|None = None, uid: str|None = None):
             **odo_range,
             **year_range
         }
-
-        # if len(price_list) > 0: 
-        #     rt_obj['min_price'] = price_list[0]
-        #     rt_obj['max_price'] = price_list[-1]
-
-        # if len(odo_list) > 0: 
-        #     rt_obj['min_odo'] = odo_list[0]
-        #     rt_obj['max_odo'] = odo_list[-1]
-
-        # if len(year_list) > 0: 
-        #     rt_obj['min_year'] = year_list[0]
-        #     rt_obj['max_year'] = year_list[-1]
 
         return rt_obj
 
