@@ -13,10 +13,12 @@ import ShareIcon from "../components/icons/share_icon";
 import ReportIcon from "../components/icons/report_icon";
 import { useSearchParams } from "next/navigation";
 import HeaderBar from "../components/header_bar";
+import FavoriteIcon from "../components/icons/favorite_icon";
 
 function ProductView() {
   const [obj, setObj] = useState(Object())
   const [selected_Image, set_Image] = useState(0)
+  const [favorite, set_favorite] = useState(false)
   const dataArr = useRef([] as { 'title': string, 'description'?: string, 'timerRef': number }[])
   const [notifications, update_notifications] = useState([] as ReactElement[])
   const vid = useSearchParams().get('vid')
@@ -163,26 +165,37 @@ function ProductView() {
                   <div className="flex flex-col mr-6 gap-2">
                     <div className="flex flex-1 gap-2 flex-row-reverse ">
                       <button className="
-                        px-2 py-2 duration-150 rounded-md
-                        fill-black dark:fill-white 
-                        hover:bg-gray-300 dark:hover:bg-gray-800 
-                        active:bg-gray-400 dark:active:bg-gray-700" 
-                        onClick={ () => 
-                          make_notification('Feature Unavailable', 'The Share feature is under development. Hope the next demo will include that')
-                        }>
-                          <ShareIcon className="h-5 w-5"/>
-                        </button>
+                      px-2 py-2 duration-150 rounded-md
+                      fill-black dark:fill-white 
+                      hover:bg-gray-300 dark:hover:bg-gray-800 
+                      active:bg-gray-400 dark:active:bg-gray-700" 
+                      onClick={ () => 
+                        make_notification('Feature Unavailable', 'The Share feature is under development. Hope the next demo will include that')
+                      }>
+                        <ShareIcon className="h-5 w-5"/>
+                      </button>
+
+                      <button className="
+                      px-2 py-2 duration-150 rounded-md
+                      fill-black dark:fill-white 
+                      hover:bg-gray-300 dark:hover:bg-gray-800 
+                      active:bg-gray-400 dark:active:bg-gray-700" 
+                      onClick={ () => 
+                        set_favorite(!favorite)
+                      }>
+                        <FavoriteIcon toggled={favorite} className="h-5 w-5"/>
+                      </button>
                         
                       <button className="
-                        px-2 py-2 duration-150 rounded-md h-min
-                        fill-red-700 dark:fill-red-500
-                        hover:bg-gray-300 dark:hover:bg-gray-800 
-                        active:bg-gray-400 dark:active:bg-gray-700"
-                        onClick={ () => 
-                          make_notification('Feature Unavailable', 'The Report feature is under development. Hope the next demo will include that')
-                        }>
-                          <ReportIcon className="h-5 w-5"/>
-                        </button>
+                      px-2 py-2 duration-150 rounded-md h-min
+                      fill-red-700 dark:fill-red-500
+                      hover:bg-gray-300 dark:hover:bg-gray-800 
+                      active:bg-gray-400 dark:active:bg-gray-700"
+                      onClick={ () => 
+                        make_notification('Feature Unavailable', 'The Report feature is under development. Hope the next demo will include that')
+                      }>
+                        <ReportIcon className="h-5 w-5"/>
+                      </button>
                     </div>
                     <div className="flex flex-1">
                         <Dialog>

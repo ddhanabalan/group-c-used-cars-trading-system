@@ -116,7 +116,7 @@ export default function HeaderBar( {
     return (
         <div className={`flex flex-none flex-col h-14 px-4 sticky top-0 backdrop-blur-md z-10 bg-white/80 shadow-md dark:bg-gray-900/70 ${className}`}>
             <div className="flex items-center gap-3 h-full">
-                <div className="pr-2 py-1 text-lg font-bold dark:text-white ">
+                <div className="pr-2 py-1 text-lg font-bold dark:text-white">
                     milesmart
                 </div>
 
@@ -130,9 +130,9 @@ export default function HeaderBar( {
                 </div>
 
                 <div className="flex gap-1">
-                    <button hidden={ !(buy_enabled ?? !is_result_page) } className={`${button_dimensions} ${secondary_button_color_scheme}`} onClick={ () => on_buy_clicked?.() ?? router.push(`results`)}>Buy</button>
+                    <button hidden={ !(buy_enabled ?? !is_result_page) } className={`${button_dimensions} ${primary_button_color_scheme}`} onClick={ () => on_buy_clicked?.() ?? router.push(`results`)}>Buy</button>
 
-                    <button hidden={ !sell_enabled } className={`${button_dimensions} ${secondary_button_color_scheme}`} onClick={ () => on_sell_clicked?.() ?? (token == undefined? perform_login(): router.push(`sell`))}>Sell</button>
+                    <button hidden={ !sell_enabled } className={`${button_dimensions} ${primary_button_color_scheme}`} onClick={ () => on_sell_clicked?.() ?? (token == undefined? perform_login(): router.push(`sell`))}>Sell</button>
 
                     <button hidden={ token != undefined } className={`${button_dimensions} ${primary_button_color_scheme}`} onClick={perform_login}>Login</button>
 

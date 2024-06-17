@@ -168,7 +168,7 @@ export default function Results() {
                   hover:bg-gray-800 dark:hover:bg-white/15
                   active:bg-gray-700 dark:active:bg-white/20' onClick={() => {
                     fetchData()
-                  }}>Apply Filters</button>
+                  }}>Apply</button>
               </div>
             </div>
               
