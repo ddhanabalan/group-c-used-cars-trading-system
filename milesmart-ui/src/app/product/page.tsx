@@ -57,7 +57,7 @@ function ProductView() {
   
     useEffect(() => {
       const fetchData = async () => {
-        const response = await fetch('http://localhost:5000/vehicles/'+vid)
+        const response = await fetch('backend/vehicles/'+vid)
         if (response.status == 200) setObj(await response.json())
       }
   

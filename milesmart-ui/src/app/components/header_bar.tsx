@@ -36,14 +36,14 @@ export default function HeaderBar( {
     const [profile_img, set_profile_img] = useState<string>("https://e7.pngegg.com/pngimages/518/320/png-clipart-computer-icons-mobile-app-development-android-my-account-icon-blue-text.png")
 
     const load_profile = (token_string: string) => {
-        fetch("http://localhost:5000/user", {
+        fetch("backend/user", {
             headers: { 'Authorization': `Bearer ${token_string}` },
         }).then((resp) => {
             if (resp.ok) resp.json().then((resp) => {
                 set_profile_img(resp["picture"])
                 console.log(resp["picture"])
-            }).catch((reson) => console.log(reson));
-        }).catch((reson) => console.log(reson));
+            }).catch((reason) => console.log(reason));
+        }).catch((reason) => console.log(reason));
     }
 
     const perform_login = () => {
@@ -51,12 +51,9 @@ export default function HeaderBar( {
         var queries = "callback=true"
         if (search_params.size > 0) queries += `&${search_params.toString()}`
 
-        fetch("http://localhost:5000/client_code", {
+        fetch("backend/client_code", {
             method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Basic ${ btoa('clientweb1:password1') }`,
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 "client_type": "web",
                 "redirect_uri": `${redirect_url}?${queries}`
@@ -65,7 +62,7 @@ export default function HeaderBar( {
             if (resp.ok) resp.json().then((resp) => {
                 const client_code = resp["client_code"]
                 sessionStorage.setItem("client_code", client_code)
-                router.push(`http://localhost:5000/login?client_code=${client_code}`);
+                router.push(`backend/login?client_code=${client_code}`);
             }).catch((reson) => console.log(reson));
         }).catch((reson) => console.log(reson));
     }
@@ -81,7 +78,7 @@ export default function HeaderBar( {
             const code = sessionStorage.getItem("client_code")
             if (code != null) {
                 sessionStorage.removeItem("client_code")
-                fetch(`http://localhost:5000/token?client_code=${code}`).then((resp) => {
+                fetch(`backend/token?client_code=${code}`).then((resp) => {
                     if (resp.ok) resp.json().then((resp) => {
                         const access_token = resp['token']
                         set_token(access_token)

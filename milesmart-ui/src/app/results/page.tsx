@@ -33,7 +33,7 @@ export default function Results() {
       const fetchData = async () => {
         set_page(search_params.has("page")? Number.parseInt(search_params.get("page")??"0")+1: 1)
         set_search(search_params.has("sk")? search_params.get("sk")?? "": "") 
-        const response = await fetch(`http://localhost:5000/vehicles?${search_params.toString()}`)
+        const response = await fetch(`backend/vehicles?${search_params.toString()}`)
         if (response.ok) {
           const result = await response.json()
           setObjs(result['results'])
