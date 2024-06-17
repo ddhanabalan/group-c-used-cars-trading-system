@@ -111,7 +111,7 @@ def vehicles(id: int|str|None = None, uid: str|None = None, current_user: dict =
                 'pipeline': [ { '$match': { 'owner': current_user['_id'] } } ]
             }
         })
-        wishlist_taging.append({ '$unwind': { 'path': '$wishlist_id' } })
+        wishlist_taging.append({ '$unwind': { 'path': '$wishlist_id', 'preserveNullAndEmptyArrays': True } })
 
     result = list(mainDatabase['Vehicle'].aggregate([match, lookup_owner, unwind_owner, *wishlist_taging, { '$skip': skip }, { '$limit': page_size }]))
 

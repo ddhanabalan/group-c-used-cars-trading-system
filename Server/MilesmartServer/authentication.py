@@ -2,10 +2,8 @@ import datetime
 from functools import wraps
 import math
 import os
-import time
 from typing import Any
-from googleapiclient.discovery import build
-from flask import abort, redirect, request, send_file, url_for, has_request_context
+from flask import abort, redirect, request, send_file, url_for
 import google_auth_oauthlib
 import jwt
 import requests
@@ -29,6 +27,9 @@ AUTH_PRIVILEGE_AGENT = 2
 AUTH_PRIVILEGE_COADMIN = 3
 AUTH_PRIVILEGE_ADMIN = 4
 
+__default_client_id = 'admin.client1'
+__default_password = 'admin.client1.password'
+
 def find_primary_field(src: list[dict[str, Any]]) -> dict[str, Any]|None:
     for field in src:
         if field['metadata']['primary']: return field
@@ -36,20 +37,19 @@ def find_primary_field(src: list[dict[str, Any]]) -> dict[str, Any]|None:
 
 @milesmartServer.route('/client_code', methods=['POST'])
 def client_code():
-    if request.authorization == None: abort(401)
-    if request.authorization.type != 'basic': abort(401)
-    if request.authorization.username != 'clientweb1': abort(401)
-    if request.authorization.password != 'password1': abort(401)
-    if not request.is_json: abort(400)
+    if request.authorization == None: return { 'error': 'UNAUTHORIZED', 'message': 'Unknown client. Please make an authorized request with credentials' }, 401
+    if request.authorization.type != 'basic': return { 'error': 'UNAUTHORIZED', 'message': 'Unknown client. Please make an authorized request with credentials' }, 401
+    if request.authorization.username != __default_client_id: return { 'error': 'UNAUTHORIZED', 'message': 'Unknown client. Please make an authorized request with credentials' }, 401
+    if request.authorization.password != __default_password: return { 'error': 'UNAUTHORIZED', 'message': 'Unknown client. Please make an authorized request with credentials' }, 401
+    if not request.is_json: return { 'error': 'BAD_REQUEST', 'message': 'Invalid content type' }, 400
 
-
-    if "client_type" not in request.json: abort(400)
-    if request.json["client_type"] not in ["web", "device"]: abort(400)
+    if "client_type" not in request.json: return { 'error': 'BAD_REQUEST', 'message': 'Required body argument client_type is missing' }, 400
+    if request.json["client_type"] not in ["web", "device"]: return { 'error': 'BAD_REQUEST', 'message': 'Unknown client type' }, 400
     if request.json["client_type"] == "web":
-        if "redirect_uri" not in request.json: abort(400)
+        if "redirect_uri" not in request.json: return { 'error': 'BAD_REQUEST', 'message': 'Required body argument redirect_uri is missing' }, 400
 
     for arg in request.json:
-        if arg not in ["client_type", "redirect_uri"]: abort(400)
+        if arg not in ["client_type", "redirect_uri"]: return { 'error': 'BAD_REQUEST', 'message': 'Unknown args found' }, 400
 
     id = generate_id()
     mainDatabase['ClientCodes'].insert_one({
@@ -201,10 +201,15 @@ def requiresAuthPrivilege(requested_privilege: int):
         def wrapper_func(*args, **kwargs):
             authorization = request.authorization
             token_available = authorization != None and authorization.type == "bearer" and authorization.token != None
+            headers = request.headers
+            client_authorized = 'Client' in headers and 'Password' in headers and headers['Client'] == __default_client_id and headers['Password'] == __default_password
             
             if not token_available:
                 if requested_privilege > 0: return { "error": "UNAUTHORIZED", "message": "Request must be done on behalf of a user. No valid token found" }, 401
                 else: return func(*args, **kwargs)
+            
+            if not client_authorized:
+                return { "error": "UNAUTHORIZED", "message": "Unknown client" }, 401
 
             try: id = jwt.decode(request.authorization.token, milesmartServer.config['SECRET_KEY'], algorithms=['HS256'])['id']
             except: return { "error": "BAD_TOKEN", "message": "Invalid token" }, 400
