@@ -28,12 +28,18 @@ export default function Results() {
     const [pages, set_pages] = useState(1)
     const [page, set_page] = useState(1)
     const [search, set_search] = useState("");
+    const [token, set_token] = useState<string|undefined>()
 
     useEffect(() => {
+      const access_token = localStorage.getItem("token")
+      if (access_token) set_token(access_token)
+
       const fetchData = async () => {
         set_page(search_params.has("page")? Number.parseInt(search_params.get("page")??"0")+1: 1)
         set_search(search_params.has("sk")? search_params.get("sk")?? "": "") 
-        const response = await fetch(`backend/vehicles?${search_params.toString()}`)
+        const response = await fetch(`backend/vehicles?${search_params.toString()}`, {
+          headers: access_token? { 'Authorization': `Bearer ${access_token}` }: undefined
+        })
         if (response.ok) {
           const result = await response.json()
           setObjs(result['results'])
@@ -186,7 +192,7 @@ export default function Results() {
                   hover:bg-gray-300 dark:hover:bg-gray-800 disabled:hover:bg-gray-200 disabled:dark:hover:bg-gray-900
                   active:bg-gray-400 dark:active:bg-gray-700 disabled:active:bg-gray-200 disabled:dark:active:bg-gray-900' onClick={() => {
                     fetchData(page-1)
-                  }}>Previous Page</button>
+                  }}>Previous</button>
                 <div className='bg-gray-200 dark:bg-gray-900 rounded-md h-min self-center px-4 py-1.5'>Page {page}/{pages}</div>
                 <button disabled={page >= pages} className='rounded px-4 py-1.5 
                   dark:text-white disabled:dark:text-gray-400 disabled:text-gray-500
@@ -194,7 +200,7 @@ export default function Results() {
                   hover:bg-gray-300 dark:hover:bg-gray-800 disabled:hover:bg-gray-200 disabled:dark:hover:bg-gray-900
                   active:bg-gray-400 dark:active:bg-gray-700 disabled:active:bg-gray-200 disabled:dark:active:bg-gray-900' onClick={() => {
                     fetchData(page+1)
-                }}>Next Page</button>
+                }}>Next</button>
               </div>
               ): (<div/>)} 
             </div>

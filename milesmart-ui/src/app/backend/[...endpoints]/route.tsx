@@ -42,3 +42,30 @@ export async function POST(request: NextRequest, { params }: { params: { endpoin
         headers: headers
     })
 }
+
+export async function DELETE(request: NextRequest, { params }: { params: { endpoints: string[] } }) {
+    const url = `${server_url}/${params.endpoints.join('/')}`
+    const headers = request.headers
+    const search_params = request.nextUrl.searchParams
+
+    reparse_headers(headers)
+
+    return await fetch(search_params.size > 0? `${url}?${search_params.toString()}`: url, {
+        method: 'DELETE',
+        headers: headers
+    })
+}
+
+export async function PATCH(request: NextRequest, { params }: { params: { endpoints: string[] } }) {
+    const url = `${server_url}/${params.endpoints.join('/')}`
+    const headers = request.headers
+    const body = await request.json()
+
+    reparse_headers(headers)
+
+    return await fetch(url, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+        headers: headers
+    })
+}

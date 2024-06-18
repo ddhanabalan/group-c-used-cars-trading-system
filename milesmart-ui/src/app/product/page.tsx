@@ -18,10 +18,12 @@ import FavoriteIcon from "../components/icons/favorite_icon";
 function ProductView() {
   const [obj, setObj] = useState(Object())
   const [selected_Image, set_Image] = useState(0)
-  const [favorite, set_favorite] = useState(false)
+  // const [favorite, set_favorite] = useState(false)
   const dataArr = useRef([] as { 'title': string, 'description'?: string, 'timerRef': number }[])
   const [notifications, update_notifications] = useState([] as ReactElement[])
   const vid = useSearchParams().get('vid')
+  const [token, set_token] = useState<string|undefined>()
+  const [wishlist_id, set_wishlist_id] = useState<string|undefined>()
 
   const map_data = (data: { 'title': string, 'description'?: string, 'timerRef': number}, index: number ) => 
     (
@@ -56,9 +58,19 @@ function ProductView() {
     }
   
     useEffect(() => {
+      const access_token = localStorage.getItem("token")
+      if (access_token) set_token(access_token)
+
       const fetchData = async () => {
-        const response = await fetch('backend/vehicles/'+vid)
-        if (response.status == 200) setObj(await response.json())
+        const response = await fetch('backend/vehicles/'+vid, {
+          headers: access_token? { 'Authorization': `Bearer ${access_token}` }: undefined
+        })
+        if (response.status == 200) {
+          const vehicle = await response.json()
+          setObj(vehicle)
+          console.log(vehicle)
+          set_wishlist_id(vehicle.wishlist_id?._id) 
+        }
       }
   
       fetchData().catch((e) => console.log(e))
@@ -180,10 +192,29 @@ function ProductView() {
                       fill-black dark:fill-white 
                       hover:bg-gray-300 dark:hover:bg-gray-800 
                       active:bg-gray-400 dark:active:bg-gray-700" 
-                      onClick={ () => 
-                        set_favorite(!favorite)
-                      }>
-                        <FavoriteIcon toggled={favorite} className="h-5 w-5"/>
+                      onClick={() => {
+                        if (wishlist_id == undefined) fetch('backend/user/wishlist', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                'vehicle': obj._id
+                            })
+                        }).then((resp) => resp.json()).then((wishlist_item) => {
+                          if ('error' in wishlist_item) console.error(`[Error] ${obj['error']}: ${obj['message']}`)
+                          else set_wishlist_id((obj.wishlist_id = wishlist_item)['_id'])
+                        })
+                        
+                        else fetch(`backend/user/wishlist/${obj.wishlist_id._id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        }).then((resp) => {
+                            if (resp.ok) set_wishlist_id(obj.wishlist_id = undefined)
+                        })
+                    }}>
+                        <FavoriteIcon toggled={wishlist_id != undefined} className="h-5 w-5"/>
                       </button>
                         
                       <button className="
