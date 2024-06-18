@@ -33,7 +33,7 @@ export default function HeaderBar( {
     const [search_key, set_search_key] = useState("")
     const [token, set_token] = useState<string|undefined>()
     const [is_result_page, set_is_result_page] = useState<boolean>(false)
-    const [profile_img, set_profile_img] = useState<string>("https://e7.pngegg.com/pngimages/518/320/png-clipart-computer-icons-mobile-app-development-android-my-account-icon-blue-text.png")
+    const [profile_img, set_profile_img] = useState<string>("https://media.istockphoto.com/id/1316420668/vector/user-icon-human-person-symbol-social-profile-icon-avatar-login-sign-web-user-symbol.jpg?s=612x612&w=0&k=20&c=AhqW2ssX8EeI2IYFm6-ASQ7rfeBWfrFFV4E87SaFhJE=")
 
     const load_profile = (token_string: string) => {
         fetch("backend/user", {
@@ -119,7 +119,7 @@ export default function HeaderBar( {
                 </div>
 
                 <div hidden={ search_enabled } className="grow flex justify-center">
-                    <input placeholder="Search" className="dark:bg-[#404040] bg-gray-200 flex-1 max-w-[480px] w-full rounded-md px-2 py-1 duration-150 placeholder:text-white placeholder:text-center text-center" style={{outline: "none"}} 
+                    <input placeholder="Search" className="dark:bg-[#404040] bg-gray-200 flex-1 max-w-[480px] w-full rounded-md px-2 py-1 duration-150 placeholder:text-gray-500 dark:placeholder:text-gray-300 placeholder:text-center text-center" style={{outline: "none"}} 
                     value={ search ?? search_key } 
                     onChange={(e) => on_search_changed?.(e.target.value) ?? set_search_key(e.target.value)} 
                     onKeyDownCapture={(e) => {
