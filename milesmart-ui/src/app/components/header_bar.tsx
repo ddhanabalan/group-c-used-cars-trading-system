@@ -99,10 +99,11 @@ export default function HeaderBar( {
 
     const secondary_button_color_scheme = `
         border
+        dark:bg-[#181818]
         text-black dark:text-white 
-        border-black dark:border-gray-400 
-        hover:bg-gray-100 dark:hover:bg-gray-800 
-        active:bg-gray-200 dark:active:bg-gray-700`
+        border-black dark:border-0
+        hover:bg-gray-100 dark:hover:bg-[#404040] 
+        active:bg-gray-200 dark:active:bg-[#404040]`
 
     const primary_button_color_scheme = `
         text-white  
@@ -111,14 +112,14 @@ export default function HeaderBar( {
         active:bg-gray-700 dark:active:bg-white/30`
 
     return (
-        <div className={`flex flex-none flex-col h-14 px-4 sticky top-0 backdrop-blur-md z-10 bg-white/80 shadow-md dark:bg-gray-900/70 ${className}`}>
+        <div className={`flex flex-none flex-col h-14 px-4 sticky top-0 backdrop-blur-md z-10 bg-white/80 shadow-md dark:bg-[#282828] ${className}`}>
             <div className="flex items-center gap-3 h-full">
                 <div className="pr-2 py-1 text-lg font-bold dark:text-white">
                     milesmart
                 </div>
 
                 <div hidden={ search_enabled } className="grow flex justify-center">
-                    <input placeholder="Search" className="dark:bg-gray-800 bg-gray-200 flex-1 max-w-[480px] w-full rounded-md px-2 py-1 duration-150 placeholder:text-gray-500 placeholder:text-center text-center" style={{outline: "none"}} 
+                    <input placeholder="Search" className="dark:bg-[#404040] bg-gray-200 flex-1 max-w-[480px] w-full rounded-md px-2 py-1 duration-150 placeholder:text-white placeholder:text-center text-center" style={{outline: "none"}} 
                     value={ search ?? search_key } 
                     onChange={(e) => on_search_changed?.(e.target.value) ?? set_search_key(e.target.value)} 
                     onKeyDownCapture={(e) => {

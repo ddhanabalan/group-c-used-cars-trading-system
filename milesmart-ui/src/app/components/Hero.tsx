@@ -14,28 +14,22 @@ const Hero = () => {
   };
 
   return (
-    <div className="hero">
-      <div className="flex-1 pt-36 padding-x">
-        <h1 className="hero__title">
+    <div className="hero container">
+      <div className="flex-1  pt-32 padding-x">
+        <div className="hero__title dark:text-white">
           Buy. Sell. <br />All with Milesmart.
-        </h1>
+        </div>
 
-        <p className="hero__subtitle">
+        <p className="hero__subtitle dark:text-[#F5F5F5]">
           Hassle-free and Affordable Used Car Marketplace
         </p>
-
-        {/* <CustomButton
-          title="Explore Cars"
-          containerStyles="bg-primary-blue text-white rounded-full mt-10"
-          handleClick={handleScroll}
-        /> */}
       </div>
       <div className="hero__image-container">
         <div className="hero__image">
           <Image src="/heroman.png" alt="hero" fill className="object-contain" /> 
         </div>
 
-        <div className="hero__image-overlay" />
+       
       </div>
     </div>
   );
