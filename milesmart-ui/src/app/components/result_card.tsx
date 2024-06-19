@@ -40,7 +40,7 @@ export default function ResultCard( { vehicle, className }: {
 
     return (
         // <Card className={'w-min-64 min-h-72 overflow-clip '}>
-        <div className={'w-min-64 min-h-72 overflow-clip shadow-md border dark:border-gray-800 rounded-lg flex flex-col bg-white dark:bg-[#282828] '+className}>
+        <div className={'w-min-64 min-h-72 overflow-clip shadow-md border dark:border-[#343434] rounded-lg flex flex-col bg-white dark:bg-[#303030] '+className}>
             <div className='h-max bg-white' onClick={() => { router.push(`/product?vid=${vehicle["_id"]}`) }}>
                 <Image alt="main_image" width={-1} height={-1} src={vehicle['image_urls'][0]} className="w-full h-48 overflow-clip object-cover hover:outline-2 hover:outline-black"/>
             </div>

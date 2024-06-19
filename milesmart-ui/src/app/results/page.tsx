@@ -87,12 +87,12 @@ export default function Results() {
 
           <div className='flex flex-1 flex-col sm:flex-row h-max py-6'>
             <div className='flex flex-col flex-none sm:h-[77vh] sm:top-20 sm:items-center sm:sticky'>
-              <div className='flex flex-col flex-none h-max rounded-2xl sm:rounded-l-none m-4 sm:pl-12 sm:pr-4 px-4 py-4 sm:m-0 gap-2 dark:bg-[#1d1d1d] bg-white dark:border-none sm:border sm:shadow'>
+              <div className='flex flex-col flex-none h-max rounded-2xl sm:rounded-l-none m-4 sm:pl-12 sm:pr-4 px-4 py-4 sm:m-0 gap-2 dark:bg-[#282828] bg-white dark:border-none sm:border sm:shadow'>
                 <div className='self-center mb-1'>Filters</div>
                 <div className='flex flex-row sm:flex-col flex-none h-max min-w-64 min-h-32 gap-2'>
                   <div className='flex flex-col h-min gap-2'>
                     { pr_range_max != undefined && pr_range_min != undefined && pr_range_max-pr_range_min >= 2 ? (
-                      <div className='flex flex-col dark:bg-[#282828] bg-gray-200 px-2 py-1 rounded'>
+                      <div className='flex flex-col dark:bg-[#343434] bg-gray-200 px-2 py-1 rounded'>
                         <div className='text-sm dark:text-gray-300'>Price Range</div>
                         <div className='py-3 mx-4 self-center'>
                           <RangeSlider max={pr_range_max} min={pr_range_min} value_max={pr_max} value_min={pr_min} onChange={(min: number, max: number) => {
@@ -106,12 +106,12 @@ export default function Results() {
                           <div className='text-xs dark:text-gray-400'>{pr_max*1000}</div>
                         </div>
                       </div>
-                    ): <div className='flex flex-col dark:bg-[#282828] bg-gray-200 px-2 py-1 rounded'>
+                    ): <div className='flex flex-col dark:bg-[#343434] bg-gray-200 px-2 py-1 rounded'>
                         <div className='text-xs text-center text-gray-400 dark:text-gray-500'>Price Range Filter Not Applicable</div>
                       </div> 
                     }
                     { odo_range_max != undefined && odo_range_min != undefined && odo_range_max-odo_range_min >= 2 ? (
-                      <div className='flex flex-col dark:bg-[#282828] bg-gray-200 px-2 py-1 rounded'>
+                      <div className='flex flex-col dark:bg-[#343434] bg-gray-200 px-2 py-1 rounded'>
                         <div className='text-sm dark:text-gray-300'>Odometer Range</div>
                         <div className='py-3 mx-4 self-center'>
                           <RangeSlider max={odo_range_max} min={odo_range_min} value_max={odo_max} value_min={odo_min} onChange={(min: number, max: number) => {
@@ -125,12 +125,12 @@ export default function Results() {
                           <div className='text-xs dark:text-gray-400'>{odo_max*1000}</div>
                         </div>
                       </div>
-                    ): <div className='flex flex-col dark:bg-[#282828] bg-gray-200 px-2 py-1 rounded'>
+                    ): <div className='flex flex-col dark:bg-[#343434] bg-gray-200 px-2 py-1 rounded'>
                         <div className='text-xs text-center text-gray-400 dark:text-gray-500'>Odometer Range Filter Not Applicable</div>
                       </div> 
                     }
                     { year_range_max != undefined && year_range_min != undefined && year_range_max-year_range_min >= 2 ? (
-                      <div className='flex flex-col dark:bg-[#282828] bg-gray-200 px-2 py-1 rounded'>
+                      <div className='flex flex-col dark:bg-[#343434] bg-gray-200 px-2 py-1 rounded'>
                       <div className='text-sm dark:text-gray-300'>Year Range</div>
                       <div className='py-3 mx-4 self-center'>
                         <RangeSlider max={year_range_max} min={year_range_min} value_max={year_max} value_min={year_min} onChange={(min: number, max: number) => {
@@ -144,14 +144,14 @@ export default function Results() {
                         <div className='text-xs dark:text-gray-400'>{year_max}</div>
                       </div>
                     </div>
-                    ): <div className='flex flex-col dark:bg-[#282828] bg-gray-200 px-2 py-1 rounded'>
+                    ): <div className='flex flex-col dark:bg-[#343434] bg-gray-200 px-2 py-1 rounded'>
                         <div className='text-xs text-center text-gray-400 dark:text-gray-500'>Year Range Filter Not Applicable</div>
                       </div> 
                     }
                   </div>
                   <div className='flex flex-1'>
                     { fuel_type_range.length > 1 || fuel_type.length > 0? (
-                      <div className='flex flex-col flex-1 dark:bg-[#282828] bg-gray-200 px-2 py-1 rounded'>
+                      <div className='flex flex-col flex-1 dark:bg-[#343434] bg-gray-200 px-2 py-1 rounded'>
                         <div className='text-sm dark:text-gray-300'>Fuel Types</div>
                         <div className='grid grid-cols-1 sm:grid-cols-2 gap-1 pt-2'>
                           {fuel_type_range.map((entry:any, index:number) => {
@@ -162,7 +162,7 @@ export default function Results() {
                           })}
                         </div>
                       </div>
-                    ): <div className='flex flex-col h-min flex-1 dark:bg-[#282828] bg-gray-200 px-2 py-1 rounded'>
+                    ): <div className='flex flex-col h-min flex-1 dark:bg-[#343434] bg-gray-200 px-2 py-1 rounded'>
                         <div className='text-xs text-center text-gray-400 dark:text-gray-500'>Fuel Filter Not Applicable</div>
                       </div> 
                     }
@@ -178,7 +178,7 @@ export default function Results() {
               </div>
             </div>
               
-            <div className='flex flex-1 justify-between flex-col gap-8 p-8 m-4 sm:my-0 sm:mr-0 bg-white dark:bg-[#1d1d1d] rounded-2xl sm:rounded-r-none'>
+            <div className='flex flex-1 justify-between flex-col gap-8 p-8 m-4 sm:my-0 sm:mr-0 bg-white dark:bg-[#282828] rounded-2xl sm:rounded-r-none'>
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 container place-self-center gap-4'>
                 {objs.map((vehicle:any, index:number) => {
                     return (<ResultCard vehicle={vehicle} key={index}/>)

@@ -132,7 +132,7 @@ function ProductView() {
   
     return (
       <Theme appearance="light">
-        <main className="flex min-h-screen flex-col justify-between dark:bg-gray-950 dark:text-white">
+        <main className="flex min-h-screen flex-col justify-between dark:bg-[#181818] dark:text-white">
           <div className="flex flex-col gap-4">
             <HeaderBar/>
 
@@ -163,12 +163,13 @@ function ProductView() {
                 <div className="flex">
                   <div className="flex flex-col flex-1">
                     <div className="text-lg font-bold">
-                      {obj['year']} {obj['manufacturer']} {obj['model']}
+                      {obj['manufacturer']} {obj['model']}
                     </div>
                     <div className="flex gap-1">
-                      <Badge text={obj['odometer']+" KM"} />
-                      <Badge text={obj['fuel']} />
-                      <Badge text={obj['transmission']} />
+                      <Badge text={obj['year']} className="dark:bg-[#343434]"/>
+                      <Badge text={obj['odometer']+" KM"} className="dark:bg-[#343434]"/>
+                      <Badge text={obj['fuel']} className="dark:bg-[#343434]"/>
+                      <Badge text={obj['transmission']} className="dark:bg-[#343434]"/>
                     </div>
                     <div className="mt-2 text-sm font-semibold">
                       &#8377; {obj['price']}/-
