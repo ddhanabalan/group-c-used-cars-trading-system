@@ -27,4 +27,4 @@ def generate_id(id: int|None = None) -> str:
 def test():
     return Response(status=204)
 
-from . import vehicles, authentication, storage, users, wishlist
+from . import vehicles, authentication, storage, users, wishlist, price_prediction

@@ -20,18 +20,27 @@ GET http://localhost:5000/token?client_code=nDxWFlXi HTTP/1.1
 
 
 ### Search For Vehicles
-GET http://localhost:5000/vehicles?page=0 HTTP/1.1
+GET http://localhost:5000/vehicles?sk=che HTTP/1.1
+Authorization: Bearer {{token1}}
+Client: admin.client1
+Password: admin.client1.password
+
 
 ### Search with key 'che'
 GET http://localhost:5000/vehicles?page=0&price_min=3000&price_max=5000&odo_min=90000&odo_max=100000 HTTP/1.1
 
 ### Fetch the details of a Vehicle with id
-GET http://localhost:5000/vehicles HTTP/1.1
+GET http://localhost:5000/vehicles/m_YxmdiU HTTP/1.1
 Authorization: Bearer {{token2}}
+Client: admin.client1
+Password: admin.client1.password
 
 ### Search for my vehicles 
 GET http://localhost:5000/user/vehicles?filter_bounds=False HTTP/1.1
-Authorization: Bearer {{token2}}
+Authorization: Bearer {{token1}}
+Client: admin.client1
+Password: admin.client1.password
+
 
 ### Post a Vehicle
 POST http://localhost:5000/user/vehicles HTTP/1.1
@@ -122,7 +131,9 @@ Authorization: Bearer {{token2}}
 
 ### Fetch Authenticated User Info
 GET http://localhost:5000/user
-Authorization: Bearer {{token2}}
+Authorization: Bearer {{token1}}
+Client: admin.client1
+Password: admin.client1.password
 
 ### Update Authenticated User Info
 PATCH http://localhost:5000/user
@@ -175,7 +186,9 @@ Content-Type: application/json
 
 ### List my wishlist
 GET http://localhost:5000/user/wishlist
-Authorization: Bearer {{token2}}
+Authorization: Bearer {{token1}}
+Client: admin.client1
+Password: admin.client1.password
 
 ### View a specific wishlisted item
 GET http://localhost:5000/user/wishlist/m_ZL5ie2

@@ -36,7 +36,6 @@ def wishlist_get(id: str|None = None, current_user: str|None = None):
     unwind_vehicle = { '$unwind': { 'path': '$vehicle' } }
 
     results = list(mainDatabase['Wishlist'].aggregate([match, lookup_user, lookup_vehicle, unwind_user, unwind_vehicle, { '$skip': skip }, { '$limit': page_size }]))
-    if len(results) <= 0: return { 'error': 'resource_not_found' }, 404
 
     if id is None:
         count = mainDatabase['Wishlist'].count_documents({ **match['$match'] })
@@ -46,6 +45,8 @@ def wishlist_get(id: str|None = None, current_user: str|None = None):
             'pages': (count//page_size)+1,
             'results': results
         }
+    
+    if len(results) <= 0: return { 'error': 'resource_not_found' }, 404
     
     return results[0]
 
