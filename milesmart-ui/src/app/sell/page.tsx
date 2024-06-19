@@ -24,7 +24,7 @@ const page = () => {
    const [transmission,set_transmission]=useState("")
    const [drive,set_drive]=useState("")
    const [condition,set_condition]=useState("")
-   const [size,set_size]=useState("Full size")
+   const [type,set_type]=useState("")
    const [status,set_status]=useState("")
    const [year, setYear] = useState<string>('')
    const [model,set_model]=useState("")
@@ -36,6 +36,7 @@ const page = () => {
    const [token, set_token] = useState<string|undefined>()
    const [obj, setObj] = useState(Object())
    const [price,set_price] = useState("")
+   const [prediction,set_prediction] = useState<number|undefined>()
    
     const handleOptionSelect = (option: any) => {
         console.log("Selected option:", option);
@@ -96,7 +97,8 @@ const page = () => {
             'drive': drive,
             'paint_color': paint,
             'state': state.toLowerCase(), 
-            'image_urls': img_urls
+            'image_urls': img_urls,
+            'type' : type
          })
       })
 
@@ -265,16 +267,16 @@ const page = () => {
                   }}
                />
          </div>
-         {/* size */}
+         {/* type */}
          <div className="flex flex-col w-full px-6 py-4 mx-16 bg-white dark:bg-[#282828] rounded-3xl">
          <div className='mb-3 home__text-container'>
-            <h1 className='text-2xl font-extrabold dark:text-white'>Size</h1>
+            <h1 className='text-2xl font-extrabold dark:text-white'>Type</h1>
          </div>
          <CustomSelectBox
-               options={["Forward", "All wheel", "4 Wheel", "Rear"]}
-               placeholder="Size"
+               options={["Pickup","Truck","Coupe","SUV","Hatchback","Mini-van","Sedan","Offroad","Bus","Van","Converitble","Wagon","Other"]}
+               placeholder="Type"
                onOptionSelect={(option: any) => {
-                  set_size(option)
+                  set_type(option)
                }}
             />
          </div>
@@ -317,7 +319,34 @@ const page = () => {
                   <Dialog>
                      <DialogTrigger asChild>
                      <button className="
-                        duration-150 text-white rounded-lg bg-black dark:bg-[#404040] dark:hover:bg-white/25 w-24 h-12 mx-16 min-w-[130px]">Continue</button>
+                        duration-150 text-white rounded-lg bg-black dark:bg-[#404040] dark:hover:bg-white/25 w-24 h-12 mx-16 min-w-[130px]" onClick={() => {
+                           fetch (`backend/ml/price`, {
+                              method: 'POST',
+                              headers: {
+                                 'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                 'model': model,
+                                 'VIN': vin,
+                                 'price': Number(price),
+                                 'year': Number(year),
+                                 'manufacturer': brand,
+                                 'condition': condition,
+                                 'cylinders': cylinder,
+                                 'fuel': fuel,
+                                 'odometer': Number(distance),
+                                 'title_status': status,
+                                 'transmission': transmission,
+                                 'drive': drive,
+                                 'paint_color': paint,
+                                 'state': state.toLowerCase(), 
+                                 'type' : type
+                              })
+                           }).then((resp) => resp.json()).then((js) => {
+                              if ('error' in js) console.log(js)
+                              else set_prediction(js['price'])
+                           })
+                        }}>Continue</button>
                      </DialogTrigger>
                      <DialogPortal>
                      <DialogOverlay className="bg-black/30 dark:bg-black/50 fixed inset-0 z-20" />
@@ -335,7 +364,7 @@ const page = () => {
                               onChange={(e) => {
                                  set_price(e.target.value)
                               }} />
-                           <div className="text-sm text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-800 w-min text-nowrap py-1 px-4 mt-2 self-end rounded-full ">AI Suggested Fair Price $ {obj['price']}</div>
+                           <div hidden={prediction == undefined} className="text-sm text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-800 w-min text-nowrap py-1 px-4 mt-2 self-end rounded-full ">AI Suggested Fair Price $ {prediction}</div>
                            <DialogClose asChild>
                               <button className="
                                  px-4 py-1.5 mt-8 duration-150 rounded-md h-min w-full
