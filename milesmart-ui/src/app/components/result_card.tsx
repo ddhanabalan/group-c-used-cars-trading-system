@@ -40,12 +40,12 @@ export default function ResultCard( { vehicle, className }: {
 
     return (
         // <Card className={'w-min-64 min-h-72 overflow-clip '}>
-        <div className={'w-min-64 min-h-72 overflow-clip shadow-md border dark:border-[#343434] rounded-lg flex flex-col bg-white dark:bg-[#303030] '+className}>
-            <div className='h-max bg-white' onClick={() => { router.push(`/product?vid=${vehicle["_id"]}`) }}>
+        <div className={'w-min-64 min-h-72 overflow-clip shadow-md border dark:border-[#343434] rounded-lg flex flex-col bg-white dark:bg-[#303030] '+className}  onClick={() => { router.push(`/product?vid=${vehicle["_id"]}`) }}>
+            <div className='h-max bg-white'>
                 <Image alt="main_image" width={-1} height={-1} src={vehicle['image_urls'][0]} className="w-full h-48 overflow-clip object-cover hover:outline-2 hover:outline-black"/>
             </div>
             <div className='flex dark:text-white min-h-24 px-3 py-2 gap-2 flex-1'>
-                <div className='flex flex-col flex-1 justify-between' onClick={() => { router.push(`/product?vid=${vehicle["_id"]}`) }}>
+                <div className='flex flex-col flex-1 justify-between'>
                     <div className='font-bold text-lg'>
                         {vehicle['manufacturer']} {vehicle['model']}
                     </div>
@@ -77,7 +77,8 @@ export default function ResultCard( { vehicle, className }: {
                     fill-black dark:fill-white 
                     hover:bg-gray-300 dark:hover:bg-gray-800 
                     active:bg-gray-400 dark:active:bg-gray-700"
-                    onClick={() => {
+                    onClick={(e) => {
+                        e.stopPropagation()
                         if (wishlist_id == undefined) fetch('backend/user/wishlist', {
                             method: 'POST',
                             headers: {
