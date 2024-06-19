@@ -1,9 +1,9 @@
 import React from 'react'
 import { CustomButton } from '../../components'
 
-const wishlistcard = () => {
+export default function wishlistcard({wishlist}: {wishlist?: any[]}) {
   return (
-    <div className='flex flex-col'>
+    <div hidden={wishlist == undefined} className='flex flex-col'>
       <div className='home__text-container'>
           <h1 className='ml-10 mb-2 text-2xl font-extrabold dark:text-white'>Your Wishlist</h1>
       </div>
@@ -33,5 +33,3 @@ const wishlistcard = () => {
     </div>
   )
 }
-
-export default wishlistcard

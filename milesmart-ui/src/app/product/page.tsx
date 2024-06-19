@@ -161,8 +161,8 @@ function ProductView() {
 
               <Card className="flex-col p-4 w-auto">
                 <div className="flex">
-                  <div className="flex flex-col flex-1">
-                    <div className="text-lg font-bold">
+                  <div className="flex flex-col flex-1 gap-2">
+                    <div className="text-xl font-bold">
                       {obj['manufacturer']} {obj['model']}
                     </div>
                     <div className="flex gap-1">
@@ -171,28 +171,28 @@ function ProductView() {
                       <Badge text={obj['fuel']} className="dark:bg-[#343434]"/>
                       <Badge text={obj['transmission']} className="dark:bg-[#343434]"/>
                     </div>
-                    <div className="mt-2 text-sm font-semibold">
-                      &#8377; {obj['price']}/-
+                    <div className="mt-2 text-md font-semibold">
+                      $ {obj['price']}
                     </div>
                   </div>
                   <div className="flex flex-col mr-6 gap-2">
-                    <div className="flex flex-1 gap-2 flex-row-reverse ">
+                    <div className="flex flex-1 gap-2 items-center flex-row-reverse ">
                       <button className="
-                      px-2 py-2 duration-150 rounded-md
+                      px-2 py-2 duration-150 rounded-md h-min
                       fill-black dark:fill-white 
-                      hover:bg-gray-300 dark:hover:bg-gray-800 
-                      active:bg-gray-400 dark:active:bg-gray-700" 
+                      hover:bg-gray-300 dark:hover:bg-[#2d2d2d] 
+                      active:bg-gray-400 dark:active:bg-[#343434]" 
                       onClick={ () => 
                         make_notification('Feature Unavailable', 'The Share feature is under development. Hope the next demo will include that')
                       }>
                         <ShareIcon className="h-5 w-5"/>
                       </button>
 
-                      <button className="
-                      px-2 py-2 duration-150 rounded-md
+                      <button hidden={token == undefined} className="
+                      px-2 py-2 duration-150 rounded-md h-min
                       fill-black dark:fill-white 
-                      hover:bg-gray-300 dark:hover:bg-gray-800 
-                      active:bg-gray-400 dark:active:bg-gray-700" 
+                      hover:bg-gray-300 dark:hover:bg-[#2d2d2d] 
+                      active:bg-gray-400 dark:active:bg-[#343434]" 
                       onClick={() => {
                         if (wishlist_id == undefined) fetch('backend/user/wishlist', {
                             method: 'POST',
@@ -221,8 +221,8 @@ function ProductView() {
                       <button className="
                       px-2 py-2 duration-150 rounded-md h-min
                       fill-red-700 dark:fill-red-500
-                      hover:bg-gray-300 dark:hover:bg-gray-800 
-                      active:bg-gray-400 dark:active:bg-gray-700"
+                      hover:bg-gray-300 dark:hover:bg-[#2d2d2d] 
+                      active:bg-gray-400 dark:active:bg-[#343434]"
                       onClick={ () => 
                         make_notification('Feature Unavailable', 'The Report feature is under development. Hope the next demo will include that')
                       }>
@@ -230,7 +230,7 @@ function ProductView() {
                       </button>
                     </div>
                     <div className="flex flex-1">
-                        <Dialog>
+                        {/* <Dialog>
                           <DialogTrigger asChild>
                             <button className="
                             px-4 py-1 duration-150 rounded-md h-min w-full
@@ -273,17 +273,17 @@ function ProductView() {
                                   <Cross2Icon/>
                                 </button>
                               </DialogClose>
-                              {/* <div className="mt-[25px] flex justify-end">
-                                <DialogClose asChild>
-                                  <button className="bg-black text-white hover:bg-gray-900 active:bg-gray-700 dark:bg-white dark:text-black dark:hover:bg-gray-100 dark:active:bg-gray-300 rounded px-4 py-1 focus:outline-none">
-                                    Bid Now
-                                  </button>
-                                </DialogClose>
-                              </div>
-                              */}
                             </DialogContent>
                           </DialogPortal>
-                        </Dialog>
+                        </Dialog> */}
+                        <button className="
+                        px-4 py-1 duration-150 rounded-md h-min w-full
+                        text-white 
+                        bg-black dark:bg-white/20
+                        hover:bg-gray-800 dark:hover:bg-white/25
+                        active:bg-gray-700 dark:active:bg-white/30" onClick={ () => 
+                          make_notification('Feature Unavailable', 'The Bid Now feature is under development. Hope the next demo will include that')
+                        }>Buy Now</button>
                     </div>
                   </div>
                 </div>

@@ -43,6 +43,12 @@ export default function HeaderBar( {
                 set_profile_img(resp["picture"])
                 console.log(resp["picture"])
             }).catch((reason) => console.log(reason));
+            else {
+                localStorage.removeItem('token')
+                localStorage.removeItem('token_id')
+                set_token(undefined)
+                router.refresh()
+            }
         }).catch((reason) => console.log(reason));
     }
 
@@ -83,6 +89,7 @@ export default function HeaderBar( {
                         const access_token = resp['token']
                         set_token(access_token)
                         localStorage.setItem("token", access_token)
+                        localStorage.setItem("token_id", resp['_id'])
                         load_profile(access_token)
 
                         const queries = search_params.toString().replace("callback=true", "")
@@ -112,9 +119,9 @@ export default function HeaderBar( {
         active:bg-gray-700 dark:active:bg-white/30`
 
     return (
-        <div className={`flex flex-none flex-col h-14 px-4 sticky top-0 backdrop-blur-md z-10 bg-white/80 shadow-md dark:bg-[#282828] ${className}`}>
+        <div className={`flex flex-none flex-col h-14 px-4 sticky top-0 backdrop-blur-md z-10 bg-white/80 shadow-md dark:bg-[#2c2c2ce0] ${className}`}>
             <div className="flex items-center gap-3 h-full">
-                <div className="pr-2 py-1 text-lg font-bold dark:text-white">
+                <div className="pr-2 py-1 text-lg font-bold dark:text-white" onClick={() => router.push('/')}>
                     milesmart
                 </div>
 
