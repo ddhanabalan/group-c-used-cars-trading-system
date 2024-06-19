@@ -39,7 +39,7 @@ export default function SideBar({user_info}: {user_info?: any}) {
           localStorage.removeItem('token_id')
           localStorage.removeItem('token')
           fetch(`backend/user/tokens/${token_id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } })
-          router.back()
+          router.replace('/')
         }}><LogoutIcon className='w-5 h-5 fill-white'/>Log out</div></button>
       </div>
       {/* </div> */}
