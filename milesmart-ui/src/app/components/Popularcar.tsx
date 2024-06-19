@@ -4,7 +4,7 @@ const Popularcar = () => {
   return (
     <div className="grid justify-center grid-cols-5 gap-2 mx-12 my-12">
       <div className="flex flex-col " id="featurecard">
-        <a href="/results?sk=toyota">
+        <a href="/results?sk=ford">
         <img src="/brand1.png" alt="brand1" className=" object-contain w-40 h-36" />
         </a>
 

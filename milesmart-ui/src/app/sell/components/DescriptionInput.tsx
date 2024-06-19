@@ -26,7 +26,7 @@ const DescriptionInput: React.FC<DescriptionInputProps> = ({
    };
 
    return (
-      <div className={`relative z-10 flex flex-col items-start justify-center border-2 border-[#dddddd] dark:border-[#404040] dark:text-white rounded-2xl ${className}`}>
+      <div className={`relative flex flex-col items-start justify-center border-2 border-[#dddddd] dark:border-[#404040] dark:text-white rounded-2xl ${className}`}>
          <textarea
             value={inputValue}
             onChange={handleInputChange}

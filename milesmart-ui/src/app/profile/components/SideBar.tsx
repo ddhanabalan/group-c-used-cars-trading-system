@@ -34,8 +34,8 @@ const SideBar = () => {
         </div>
       </div>
       <div className='flex flex-col gap-2 '>
-      <button className='w-32 h-10  rounded-xl bg-black text-white font-medium'><div className='flex justify-center gap-1'><EditIcon className='w-5 h-5 fill-white'/>Edit</div></button>
-      <button className='w-32 h-10 rounded-xl bg-black text-white font-medium'><div className='flex justify-center gap-1'><LogoutIcon className='w-5 h-5 fill-white'/>Log out</div></button>
+      <button disabled className='w-32 h-10 dark:disabled:bg-[#181818] disabled:bg-[#404040] rounded-xl hover:bg-gray-800 dark:hover:bg-white/10 bg-black text-white font-medium'><div className='flex justify-center gap-1'><EditIcon className='w-5 h-5 fill-white'/>Edit</div></button>
+      <button className='w-32 h-10 rounded-xl bg-black hover:bg-gray-800 dark:hover:bg-[#404040] text-white font-medium'><div className='flex justify-center gap-1'><LogoutIcon className='w-5 h-5 fill-white'/>Log out</div></button>
       </div>
       
 

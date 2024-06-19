@@ -12,8 +12,7 @@ import HeaderBar from "../components/header_bar";
 export default function Home() {
   const [selection, set_selection] = useState(0)
 
-  var widget = selection == 0? (<Buycard/>): 
-    selection == 1? (<Sellcard/>): <Wishlistcard/>
+  var widget = selection == 0? (<Sellcard/>): <Wishlistcard/>
 
   return (
     <main className="flex flex-col min-h-screen bg-[#F5F5F5] dark:bg-[#181818] ">

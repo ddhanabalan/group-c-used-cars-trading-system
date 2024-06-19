@@ -72,7 +72,7 @@ export default function Home() {
 
         <div className='grid grid-cols-2 mt-12 padding-x padding-y max-width' id='sellyourcar'>
           <div className='my-16 ml-24 home__text-container'>
-            <h1 className='text-4xl font-extrabold dark:text-white'>Sell your Car</h1>
+            <h1 className='text-4xl font-extrabold mt-12 dark:text-white'>Sell your Car</h1>
             <p className="text-xl font-medium dark:text-[#F5F5F5]">Boost your visibility with Milesmart </p>
             <p className="dark:text-[#F5F5F5]">MileSmart offers the finest automated audience selection, guaranteeing genuine and engaged buyers from your local and nearby areas. Sign up now to sell your cars online.</p>
             

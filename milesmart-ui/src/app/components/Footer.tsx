@@ -3,7 +3,7 @@ import Link from "next/link";
 import { footerLinks} from "."
 
 const Footer = () => (
-  <footer className='flex flex-col border-t bg-[#F5F5F5] border-gray-200 text-black-100 dark:bg-[#191414] dark:text-white dark:border-[#121212]'>
+  <footer className='flex flex-col border-t bg-[#F5F5F5] border-gray-200 text-black-100 dark:bg-[#181818] dark:text-white dark:border-[#313131]'>
     <div className='flex flex-wrap justify-between gap-5 px-6 py-10 max-md:flex-col sm:px-16'>
       <div className='flex flex-col items-start justify-start gap-6'>
       <div className="pr-2 py-1 text-2xl font-bold dark:text-white">

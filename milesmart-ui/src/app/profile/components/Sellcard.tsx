@@ -8,12 +8,12 @@ const Sellcard = () => {
       </div>
       
 
-      <div className=' p-2 mx-10 my-2 border-2 dark:border-0 py-6 shadow-md dark:bg-[#181818] rounded-2xl h-fit' id='card1'>
+      <div className=' p-2 mx-10 my-2 border-2 dark:border-0 py-6 shadow-md dark:bg-[#181818ac] rounded-2xl h-fit' id='card1'>
         <div className='grid grid-cols-2 '>
             <div className='self-center col-span-1 gap-1 ml-10 home__text-container'>
               <div className=' flex flex-row '>
                 <h2 className='text-xl font-bold dark:text-white '>Maruti Suzuki LXI</h2>
-                <div className='flex w-fit ml-3 self-center px-4 py-0.5 rounded-full h-fit bg-green-300 text-green-700 place-items-center justify-center'><div className=' text-xs font-semibold'>Sold</div></div> 
+                {/* <div className='flex w-fit ml-3 self-center px-4 py-0.5 rounded-full h-fit bg-green-300 text-green-700 dark:bg-green-700 dark:text-green-300 place-items-center justify-center'><div className=' text-xs font-semibold'>Sold</div></div>  */}
               </div>
         
                 <div className=' text-sm flex flex-row gap-3 dark:text-white'>
@@ -26,7 +26,7 @@ const Sellcard = () => {
                 
             </div>
             <div className='col-span-1 mr-10 justify-self-end content-center'>
-                <button className='w-32 h-12  rounded-xl bg-black text-white font-medium'>Remove</button>
+                <button className='w-32 h-12  rounded-xl hover:bg-gray-800 bg-black dark:bg-[#303030] dark:hover:bg-white/10 text-white font-medium'>Remove</button>
                 </div>
             
         </div>
