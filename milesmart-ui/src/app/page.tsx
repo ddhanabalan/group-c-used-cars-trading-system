@@ -17,41 +17,41 @@ export default function Home() {
   const router = useRouter()
   const [img_src, set_img_src] = useState("")
 
-  const load_img = (token_string: string) => {
-    fetch("http://localhost:5000/user", {
-      headers: {
-        'Authorization': `Bearer ${token_string}`,
-      },
-    }).then((resp) => {
-      if (resp.ok) resp.json().then((resp) => {
-        const url = resp["picture"]
-        console.log(url)
-        set_img_src(url)
-      }).catch((reson) => console.log(reson));
-    }).catch((reson) => console.log(reson));
-  }
+  // const load_img = (token_string: string) => {
+  //   fetch("http://localhost:5000/user", {
+  //     headers: {
+  //       'Authorization': `Bearer ${token_string}`,
+  //     },
+  //   }).then((resp) => {
+  //     if (resp.ok) resp.json().then((resp) => {
+  //       const url = resp["picture"]
+  //       console.log(url)
+  //       set_img_src(url)
+  //     }).catch((reson) => console.log(reson));
+  //   }).catch((reson) => console.log(reson));
+  // }
 
-  useEffect(() => {
-    const temp_token = localStorage.getItem("token")
-    set_token(temp_token)
+  // useEffect(() => {
+  //   const temp_token = localStorage.getItem("token")
+  //   set_token(temp_token)
 
-    if (temp_token != null) load_img(temp_token)
+  //   if (temp_token != null) load_img(temp_token)
 
-    if (search_params.has("callback") && search_params.get("callback") == "true") {
-      const code = sessionStorage.getItem("client_code")
-      if (code != null) {
-        sessionStorage.removeItem("client_code")
-        fetch(`http://localhost:5000/token?client_code=${code}`).then((resp) => {
-          if (resp.ok) resp.json().then((resp) => {
-            const temp_token = resp['token']
-            set_token(temp_token)
-            load_img(temp_token)
-            localStorage.setItem("token", resp['token'])
-          })
-        })
-      }
-    }
-  }, [])
+  //   if (search_params.has("callback") && search_params.get("callback") == "true") {
+  //     const code = sessionStorage.getItem("client_code")
+  //     if (code != null) {
+  //       sessionStorage.removeItem("client_code")
+  //       fetch(`http://localhost:5000/token?client_code=${code}`).then((resp) => {
+  //         if (resp.ok) resp.json().then((resp) => {
+  //           const temp_token = resp['token']
+  //           set_token(temp_token)
+  //           load_img(temp_token)
+  //           localStorage.setItem("token", resp['token'])
+  //         })
+  //       })
+  //     }
+  //   }
+  // }, [])
 
 
   return (
