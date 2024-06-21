@@ -364,7 +364,7 @@ const page = () => {
                               onChange={(e) => {
                                  set_price(e.target.value)
                               }} />
-                           <div hidden={prediction == undefined} className="text-sm text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-800 w-min text-nowrap py-1 px-4 mt-2 self-end rounded-full ">AI Suggested Fair Price $ {prediction}</div>
+                           <div hidden={prediction == undefined} className="text-sm text-green-600 bg-green-100 dark:text-green-200 dark:bg-green-800 w-min text-nowrap py-1 px-4 mt-2 self-end rounded-full ">AI Suggested Fair Price $ {Math.round(prediction ?? 0)*10}</div>
                            <DialogClose asChild>
                               <button className="
                                  px-4 py-1.5 mt-8 duration-150 rounded-md h-min w-full
