@@ -1,4 +1,4 @@
-< [Home](../../../BackendAPIs.md)
+< [Home](../../../BackendAPIs.md#vehicle-endpoints)
 # Update The Details of a Vehicle
 - Endpoint: `/user/vehicles/<id>` `PATCH`
 - Authentication Required as Normal User

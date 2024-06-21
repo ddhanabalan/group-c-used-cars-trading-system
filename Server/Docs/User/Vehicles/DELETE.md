@@ -1,6 +1,6 @@
-< [Home](../../../BackendAPIs.md)
+< [Home](../../../BackendAPIs.md#vehicle-endpoints)
 # Delete The Details of a Vehicle
-- Endpoint: `/user/vehicles/<id>` `PATCH`
+- Endpoint: `/user/vehicles/<id>` `DELETE`
 - Authentication Required as Normal User
 ## Path Parameters:
 - `id: long` Vehicle ID **(Required)**

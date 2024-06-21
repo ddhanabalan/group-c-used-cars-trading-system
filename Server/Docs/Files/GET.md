@@ -1,4 +1,4 @@
-< [Home](../../BackendAPIs.md)
+< [Home](../../BackendAPIs.md#file-storage-endpoints)
 # Download/View Files
 - Endpoint: `/files/<id>` `GET`
 - No Authentication Required

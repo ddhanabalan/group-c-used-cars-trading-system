@@ -1,4 +1,4 @@
-< [Home](../../../BackendAPIs.md)
+< [Home](../../../BackendAPIs.md#vehicle-endpoints)
 # Get The Details of a Vehicle
 - Endpoint: `/user/vehicles/<id>` `GET`
 - Authentication Required as Normal User
